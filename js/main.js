@@ -207,6 +207,11 @@ $('labels').onchange = applyVisibility;
 $('night').onchange = e => { night = e.target.checked; applyTime(); };
 $('rotate').onchange = e => orbit.autoRotate = e.target.checked;
 
+// collapsible control panel — keep the 3D view clear, especially on mobile
+$('panelClose').onclick = () => document.body.classList.add('panel-collapsed');
+$('panelOpen').onclick = () => document.body.classList.remove('panel-collapsed');
+if (innerWidth < 760) document.body.classList.add('panel-collapsed');   // start hidden on small screens
+
 // dimension sliders -> live rebuild (throttled to one per frame)
 let pending = false;
 function scheduleRebuild() { if (pending) return; pending = true; requestAnimationFrame(() => { pending = false; rebuild(); }); }

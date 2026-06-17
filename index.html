@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Rumah 5 × 15.4 m — 3D Interior</title>
-  <link rel="stylesheet" href="styles.css?v=6" />
+  <link rel="stylesheet" href="styles.css?v=7" />
   <script type="importmap">
   {
     "imports": {
@@ -18,7 +18,10 @@
   <canvas id="app"></canvas>
 
   <div id="panel">
-    <div class="title">Rumah 5 × 15.4 m<span>2 lantai · sesuai denah</span></div>
+    <div class="phead">
+      <div class="title">Rumah 5 × 15.4 m<span>2 lantai · sesuai denah</span></div>
+      <button id="panelClose" aria-label="Hide panel" title="Hide panel">✕</button>
+    </div>
 
     <div class="group">
       <div class="lbl">Views</div>
@@ -56,6 +59,8 @@
 
     <div class="hint">Drag to orbit · scroll to zoom · right-drag to pan</div>
   </div>
+
+  <button id="panelOpen" aria-label="Show controls" title="Show controls">☰</button>
 
   <div id="fpHint">
     <b>Walk mode</b> — <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> move · mouse to look ·
