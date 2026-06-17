@@ -29,9 +29,10 @@ export function computeLayout(p = {}) {
   const masterZ1 = zF2 + 3.23;
   const HALL = 0.92;                    // connecting landing depth = stair landing width
   const bedZ0 = masterZ1 + HALL;
-  // a COMPACT spiral that fits the 0.92 m landing (≈0.92 m across), centred in the right strip
+  // a COMPACT spiral that fits the 0.92 m landing (≈0.92 m across), pushed to the right
+  // wall so a fridge-sized niche is left beside the stair on the ground floor
   const sr1 = Math.min(0.42, HALL / 2 - 0.04);
-  const scx = splitX + (W - splitX) / 2;
+  const scx = W - 0.5;
   const scz = (masterZ1 + bedZ0) / 2;
   const SV = { x0: scx - sr1 - 0.05, x1: scx + sr1 + 0.05, z0: masterZ1, z1: bedZ0 };
   return {
@@ -175,6 +176,8 @@ export function buildHouse(textures = {}, L) {
   ], intMat);
   // toilet back wall (solid) — encloses the powder room from the stair
   wall(groups.structure, 'x', L.rooms.toilet.z1, splitX, X1, 0, FH, [], intMat);
+  // wall separating the staircase (with the fridge niche) from the kitchen
+  wall(groups.structure, 'x', L.rooms.kitchen.z0, splitX, X1, 0, FH, [], intMat);
 
   /* ===== FLOOR 2 walls ===== */
   const y2 = FH;

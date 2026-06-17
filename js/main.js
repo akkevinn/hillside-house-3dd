@@ -96,7 +96,8 @@ function furnish(L, floor0, floor1, labels, lights) {
   // kitchen
   let [kx, kz] = C(R.kitchen);
   put(floor0, F.kitchenLinear(Math.min(1.9, R.kitchen.z1 - R.kitchen.z0 - 0.4)), R.kitchen.x1 - 0.34, kz, Math.PI / 2);
-  put(floor0, F.fridge(), R.kitchen.x0 + 0.4, R.kitchen.z1 - 0.5, Math.PI);
+  // fridge tucked into the niche beside the stair (against the stair|kitchen wall)
+  put(floor0, F.fridge(), L.splitX + 0.35, L.SV.z1 - 0.4, Math.PI);
   // carport + greenery
   put(floor0, F.car(0x5f6b78), L.W - 1.05, Math.min(L.zCar - 0.25, 2.3));   // parked clear of the relocated door
   put(floor0, F.plant(1.7), 0.45, L.zCar - 0.8);
