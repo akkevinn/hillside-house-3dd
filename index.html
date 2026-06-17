@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>5 × 12.5 m House — 3D Interior</title>
+  <link rel="stylesheet" href="styles.css?v=6" />
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./vendor/three.module.js",
+      "three/addons/": "./vendor/addons/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <canvas id="app"></canvas>
+
+  <div id="panel">
+    <div class="title">Rumah 5 × 15.4 m<span>2 lantai · sesuai denah</span></div>
+
+    <div class="group">
+      <div class="lbl">Views</div>
+      <div class="row">
+        <button id="vIso">Isometric</button>
+        <button id="vTop">Top</button>
+        <button id="vFront">Front</button>
+        <button id="vSide">Side</button>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="lbl">Show / hide</div>
+      <label class="chk"><input type="checkbox" id="roof"> Roof</label>
+      <label class="chk"><input type="checkbox" id="walls" checked> Outer walls</label>
+      <label class="chk"><input type="checkbox" id="upper" checked> Upper level</label>
+      <label class="chk"><input type="checkbox" id="labels" checked> Room labels</label>
+    </div>
+
+    <div class="group">
+      <div class="lbl">Scene</div>
+      <label class="chk"><input type="checkbox" id="night"> Night mode</label>
+      <label class="chk"><input type="checkbox" id="rotate"> Auto-rotate</label>
+      <label class="chk"><input type="checkbox" id="walk"> Walk inside (WASD)</label>
+    </div>
+
+    <div class="group">
+      <div class="lbl">Dimensions <button id="dReset" class="mini">reset</button></div>
+      <div class="dim"><span>Width</span><input type="range" id="dW" min="3.5" max="6.5" step="0.05"><b id="dWv"></b></div>
+      <div class="dim"><span>Carport</span><input type="range" id="dCar" min="3" max="6.5" step="0.05"><b id="dCarv"></b></div>
+      <div class="dim"><span>Living</span><input type="range" id="dEnc" min="3.5" max="7" step="0.05"><b id="dEncv"></b></div>
+      <div class="dim"><span>Backyard</span><input type="range" id="dBack" min="3" max="10" step="0.1"><b id="dBackv"></b></div>
+      <div class="dim"><span>Floor ht</span><input type="range" id="dFH" min="2.7" max="3.6" step="0.05"><b id="dFHv"></b></div>
+    </div>
+
+    <div class="hint">Drag to orbit · scroll to zoom · right-drag to pan</div>
+  </div>
+
+  <div id="fpHint">
+    <b>Walk mode</b> — <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> move · mouse to look ·
+    <kbd>E</kbd> upstairs · <kbd>Q</kbd> downstairs · <kbd>Esc</kbd> exit
+  </div>
+
+  <div id="legend">
+    Lantai 1: carport · ruang tamu · ruang makan · dapur · toilet · backyard
+    &nbsp;|&nbsp; Lantai 2: 3 kamar tidur · 2 KM/WC
+  </div>
+
+  <script type="module" src="./js/main.js"></script>
+</body>
+</html>
