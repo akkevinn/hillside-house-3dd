@@ -538,3 +538,82 @@ export function campTable() {
   });
   return g;
 }
+
+/* ===================== gym & nursery ===================== */
+const hbar = (len, r, material, x, y, z) => {     // horizontal bar along x
+  const c = cyl(r, r, len, material, { seg: 8 }); c.rotation.z = Math.PI / 2; c.position.set(x, y, z); return c;
+};
+
+export function weightBench(color = 0x7a3030) {
+  const g = G();
+  const pad = mat(color, { rough: 0.85 }), frame = mat(0x3a3d42, { metal: 0.55, rough: 0.4 });
+  g.add(box(0.34, 0.12, 1.15, pad, { pos: [0, 0.46, 0] }));
+  [-0.45, 0.45].forEach(sz => {
+    g.add(box(0.5, 0.05, 0.06, frame, { pos: [0, 0.04, sz] }));
+    g.add(box(0.05, 0.4, 0.05, frame, { pos: [0.15, 0.24, sz] }));
+    g.add(box(0.05, 0.4, 0.05, frame, { pos: [-0.15, 0.24, sz] }));
+  });
+  return g;
+}
+
+export function dumbbellRack() {
+  const g = G();
+  const frame = mat(0x3a3d42, { metal: 0.55, rough: 0.4 });
+  const bar = mat(0x6a6d72, { metal: 0.7, rough: 0.3 }), wt = mat(0x222428, { rough: 0.6 });
+  g.add(box(1.0, 0.05, 0.42, frame, { pos: [0, 0.34, 0] }));            // lower shelf
+  g.add(box(1.0, 0.05, 0.42, frame, { pos: [0, 0.6, -0.16] }));         // upper shelf
+  [[-0.46, 0.18], [0.46, 0.18], [-0.46, -0.2], [0.46, -0.2]].forEach(p => g.add(box(0.05, 0.66, 0.05, frame, { pos: [p[0], 0.33, p[1]] })));
+  const db = (x, y, z) => {
+    g.add(hbar(0.26, 0.018, bar, x, y, z));
+    g.add(hbar(0.055, 0.06, wt, x - 0.12, y, z));
+    g.add(hbar(0.055, 0.06, wt, x + 0.12, y, z));
+  };
+  for (let i = 0; i < 3; i++) { db(-0.3 + i * 0.3, 0.42, 0.02); db(-0.3 + i * 0.3, 0.68, -0.16); }
+  return g;
+}
+
+export function cableMachine() {
+  const g = G();
+  const frame = mat(0x33373b, { metal: 0.5, rough: 0.4 }), stack = mat(0x222428, { metal: 0.3, rough: 0.5 });
+  g.add(box(0.5, 0.08, 0.6, frame, { pos: [0, 0.04, 0] }));             // base
+  g.add(box(0.16, 2.1, 0.16, frame, { pos: [-0.15, 1.05, -0.2] }));     // back post
+  g.add(box(0.4, 1.3, 0.42, stack, { pos: [-0.15, 0.75, -0.2] }));      // weight stack
+  g.add(box(0.5, 0.12, 0.12, frame, { pos: [0.05, 2.05, -0.2] }));      // top arm
+  const cable = cyl(0.008, 0.008, 1.3, mat(0x111316), { seg: 4 }); cable.position.set(0.28, 1.4, -0.2); g.add(cable);
+  g.add(box(0.2, 0.04, 0.04, frame, { pos: [0.28, 0.74, -0.2] }));      // handle bar
+  return g;
+}
+
+export function pullUpTower() {
+  const g = G();
+  const frame = mat(0x3a3d42, { metal: 0.55, rough: 0.4 }), pad = mat(0x222428, { rough: 0.8 });
+  g.add(box(0.85, 0.08, 0.95, frame, { pos: [0, 0.04, 0] }));           // base
+  [-0.36, 0.36].forEach(sx => g.add(box(0.07, 2.15, 0.07, frame, { pos: [sx, 1.07, -0.25] })));   // posts
+  g.add(hbar(0.85, 0.025, frame, 0, 2.15, -0.1));                       // pull-up bar
+  g.add(box(0.45, 0.55, 0.06, pad, { pos: [0, 1.5, -0.27] }));          // back pad
+  [-0.28, 0.28].forEach(sx => g.add(box(0.05, 0.05, 0.45, frame, { pos: [sx, 1.25, 0] })));       // dip handles
+  return g;
+}
+
+export function pcTower() {
+  const g = G();
+  g.add(box(0.22, 0.46, 0.46, mat(0x1a1c1f, { rough: 0.4, metal: 0.2 }), { pos: [0, 0.23, 0] }));
+  g.add(box(0.015, 0.34, 0.02, mat(0x2a6cff, { emissive: 0x1e54ff, emissiveIntensity: 0.7 }), { pos: [0.112, 0.27, 0.12] }));
+  return g;
+}
+
+export function crib() {
+  const g = G();
+  const wood = mat(PAL.woodLight, { rough: 0.6 });
+  g.add(box(0.74, 0.1, 1.32, wood, { pos: [0, 0.34, 0] }));             // base frame
+  g.add(box(0.66, 0.14, 1.24, PAL.cream, { pos: [0, 0.46, 0], rough: 0.95 }));   // mattress
+  [-0.36, 0.36].forEach(sx => {
+    g.add(box(0.04, 0.04, 1.32, wood, { pos: [sx, 0.82, 0] }));
+    for (let i = 0; i < 10; i++) g.add(cyl(0.012, 0.012, 0.46, wood, { pos: [sx, 0.6, -0.58 + i * 0.13], seg: 5 }));
+  });
+  [-0.62, 0.62].forEach(sz => {
+    g.add(box(0.74, 0.04, 0.04, wood, { pos: [0, 0.82, sz] }));
+    for (let i = 0; i < 5; i++) g.add(cyl(0.012, 0.012, 0.46, wood, { pos: [-0.3 + i * 0.15, 0.6, sz], seg: 5 }));
+  });
+  return g;
+}

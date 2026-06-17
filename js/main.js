@@ -57,6 +57,8 @@ tex.wall.repeat.set(3, 3);
 /* ============================ model build / rebuild ============================ */
 const params = { ...DEFAULTS };
 let model = null;
+const VERSIONS = [{ id: 'default', name: 'Default' }, { id: 'gym', name: 'Gym & Office' }];
+let version = 'default';
 const $ = id => document.getElementById(id);
 const C = (rect) => [(rect.x0 + rect.x1) / 2, (rect.z0 + rect.z1) / 2];
 
@@ -129,13 +131,29 @@ function furnish(L, floor0, floor1, labels, lights) {
   // KM/WC 2
   put(floor1, F.toilet(), R.wc2.x0 + 0.32, R.wc2.z1 - 0.5, Math.PI / 2, FH);
   put(floor1, F.basin(), R.wc2.x1 - 0.32, R.wc2.z1 - 0.55, -Math.PI / 2, FH);
-  // bedroom 2 — headboard against the left wall (door is in the front/landing wall)
-  put(floor1, F.bed(1.4, 2.0, PAL.fabricBlue), R.bed2.x0 + 1.0, R.bed2.z0 + 1.25, Math.PI / 2, FH);
-  put(floor1, F.wardrobe(1.2, 2.1), R.bed2.x1 - 0.32, R.bed2.z1 - 0.9, -Math.PI / 2, FH);
-  put(floor1, F.rug(1.6, 1.3, PAL.fabricSand), R.bed2.x0 + 1.1, R.bed2.z0 + 1.25, 0, FH);
-  // bedroom 3 — headboard against the right wall
-  put(floor1, F.bed(1.2, 2.0, PAL.fabricSand), R.bed3.x1 - 1.0, R.bed3.z0 + 1.25, -Math.PI / 2, FH);
-  put(floor1, F.desk(), R.bed3.x0 + 0.36, R.bed3.z1 - 0.6, Math.PI / 2, FH);
+  if (version === 'gym') {
+    // KAMAR TIDUR 2 → home gym + work corner
+    put(floor1, F.desk(), R.bed2.x0 + 0.4, R.bed2.z1 - 0.7, Math.PI / 2, FH);          // work corner (back-left)
+    put(floor1, F.officeChair(), R.bed2.x0 + 1.05, R.bed2.z1 - 0.7, -Math.PI / 2, FH);
+    put(floor1, F.pcTower(), R.bed2.x0 + 0.45, R.bed2.z1 - 1.45, 0, FH);
+    put(floor1, F.rug(2.0, 1.5, 0x33373b), R.bed2.x0 + 1.45, R.bed2.z0 + 1.35, 0, FH); // gym mat
+    put(floor1, F.weightBench(), R.bed2.x0 + 1.3, R.bed2.z0 + 1.3, 0, FH);
+    put(floor1, F.dumbbellRack(), R.bed2.x0 + 0.6, R.bed2.z0 + 0.45, 0, FH);
+    put(floor1, F.cableMachine(), R.bed2.x1 - 0.35, R.bed2.z0 + 1.55, -Math.PI / 2, FH);
+    put(floor1, F.pullUpTower(), R.bed2.x1 - 0.55, R.bed2.z1 - 0.55, Math.PI, FH);
+    // KAMAR TIDUR 3 → baby / kids room
+    put(floor1, F.crib(), R.bed3.x1 - 0.55, R.bed3.z1 - 0.9, 0, FH);
+    put(floor1, F.wardrobe(1.0, 1.7), R.bed3.x0 + 0.32, R.bed3.z0 + 1.0, Math.PI / 2, FH);
+    put(floor1, F.rug(1.4, 1.3, PAL.fabricSage), R.bed3.x0 + 1.05, R.bed3.z0 + 1.5, 0, FH);
+    put(floor1, F.plant(1.0), R.bed3.x1 - 0.35, R.bed3.z0 + 0.45, 0, FH);
+  } else {
+    // default — two bedrooms
+    put(floor1, F.bed(1.4, 2.0, PAL.fabricBlue), R.bed2.x0 + 1.0, R.bed2.z0 + 1.25, Math.PI / 2, FH);
+    put(floor1, F.wardrobe(1.2, 2.1), R.bed2.x1 - 0.32, R.bed2.z1 - 0.9, -Math.PI / 2, FH);
+    put(floor1, F.rug(1.6, 1.3, PAL.fabricSand), R.bed2.x0 + 1.1, R.bed2.z0 + 1.25, 0, FH);
+    put(floor1, F.bed(1.2, 2.0, PAL.fabricSand), R.bed3.x1 - 1.0, R.bed3.z0 + 1.25, -Math.PI / 2, FH);
+    put(floor1, F.desk(), R.bed3.x0 + 0.36, R.bed3.z1 - 0.6, Math.PI / 2, FH);
+  }
   // landing greenery
   put(floor1, F.plant(1.3), R.hall.x0 + 0.45, R.hall.z0 + 0.5, 0, FH);
 
@@ -148,13 +166,15 @@ function furnish(L, floor0, floor1, labels, lights) {
   lampAt(floor1, (R.wc1.x0 + R.wc1.x1) / 2, FH + 2.4, (R.wc1.z0 + R.wc1.z1) / 2, 0xcfe8ff);
 
   /* labels */
+  const b2Label = version === 'gym' ? 'Gym & Kerja' : 'Kamar Tidur 2';
+  const b3Label = version === 'gym' ? 'Kamar Bayi' : 'Kamar Tidur 3';
   const lab = [
     ['Carport', L.W / 2, L.zCar - 1.6, 1.5], ['Ruang Tamu', lx, lz, 1.6], ['Ruang Makan', dx, dz, 1.6],
     ['Dapur', kx, kz, 1.6], ['Toilet', (R.toilet.x0 + R.toilet.x1) / 2, (R.toilet.z0 + R.toilet.z1) / 2, 1.55],
     ['Backyard', L.W / 2, (L.zEnc + L.zBL) / 2, 1.6],
     ['Kamar Tidur 1', mx, mz, 4.7], ['KM/WC 1', (R.wc1.x0 + R.wc1.x1) / 2, (R.wc1.z0 + R.wc1.z1) / 2, 4.6],
     ['KM/WC 2', (R.wc2.x0 + R.wc2.x1) / 2, (R.wc2.z0 + R.wc2.z1) / 2, 4.6], ['Hall', hx, hz, 4.6],
-    ['Kamar Tidur 2', b2x, b2z, 4.7], ['Kamar Tidur 3', b3x, b3z, 4.7],
+    [b2Label, b2x, b2z, 4.7], [b3Label, b3x, b3z, 4.7],
   ];
   // labels live in the un-mirrored scene → mirror only their position so the text stays readable
   lab.forEach(([t, x, z, y]) => { const s = makeLabel(t); s.position.set(L.center.cx - x, y, z - L.center.cz); labels.add(s); });
@@ -180,8 +200,13 @@ function rebuild() {
   groups.structure.children.concat(groups.wallsExt.children, groups.roof.children).forEach(o => { bb.setFromObject(o); if ((bb.min.y + bb.max.y) / 2 > 2.6) upperStructure.push(o); });
 
   model = { house, groups, floor0, floor1, labels, lights, upperStructure, L };
-  applyVisibility(); applyTime();
+  applyVisibility(); applyTime(); updateLegend();
   orbit.target.set(0, 1.4, 0);
+}
+
+function updateLegend() {
+  const l2 = version === 'gym' ? 'kamar utama · kamar bayi · gym &amp; kerja · 2 KM/WC' : '3 kamar tidur · 2 KM/WC';
+  $('legend').innerHTML = 'Lantai 1: carport · ruang tamu · ruang makan · dapur · toilet · backyard &nbsp;|&nbsp; Lantai 2: ' + l2;
 }
 
 /* ============================ visibility / time ============================ */
@@ -214,6 +239,12 @@ $('upper').onchange = applyVisibility;
 $('labels').onchange = applyVisibility;
 $('night').onchange = e => { night = e.target.checked; applyTime(); };
 $('rotate').onchange = e => orbit.autoRotate = e.target.checked;
+
+// design version selector
+const verSel = $('version');
+VERSIONS.forEach(v => { const o = document.createElement('option'); o.value = v.id; o.textContent = v.name; verSel.appendChild(o); });
+verSel.value = version;
+verSel.onchange = e => { version = e.target.value; rebuild(); };
 
 // collapsible control panel — keep the 3D view clear, especially on mobile
 $('panelClose').onclick = () => document.body.classList.add('panel-collapsed');

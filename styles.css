@@ -50,6 +50,12 @@ button {
 }
 button:hover { background: rgba(111,182,255,0.16); border-color: rgba(111,182,255,0.4); }
 button:active { transform: translateY(1px); }
+select#version {
+  width: 100%; appearance: none; -webkit-appearance: none;
+  background: rgba(255,255,255,0.06); border: 1px solid var(--stroke); color: var(--text);
+  font-size: 13px; padding: 7px 9px; border-radius: 9px; cursor: pointer;
+}
+select#version:hover { border-color: rgba(111,182,255,0.45); }
 .chk { display: flex; align-items: center; gap: 9px; font-size: 13px; padding: 5px 0; cursor: pointer; }
 .chk input { accent-color: var(--accent); width: 15px; height: 15px; cursor: pointer; }
 .mini { font-size: 9px; padding: 2px 7px; border-radius: 6px; margin-left: 6px; vertical-align: middle;
