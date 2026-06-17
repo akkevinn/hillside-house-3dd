@@ -93,11 +93,11 @@ function furnish(L, floor0, floor1, labels, lights) {
   // toilet
   put(floor0, F.toilet(), R.toilet.x1 - 0.25, R.toilet.z1 - 0.4, -Math.PI / 2);
   put(floor0, F.basin(), R.toilet.x0 + 0.45, R.toilet.z1 - 0.3, Math.PI);   // back wall, clear of the door
-  // kitchen
+  // kitchen — counter along the right wall, shortened to leave a gap at its front end
   let [kx, kz] = C(R.kitchen);
-  put(floor0, F.kitchenLinear(Math.min(1.9, R.kitchen.z1 - R.kitchen.z0 - 0.4)), R.kitchen.x1 - 0.34, kz, Math.PI / 2);
-  // fridge in the kitchen, front-left against the stair|kitchen wall (separate from the stair)
-  put(floor0, F.fridge(), R.kitchen.x0 + 0.4, R.kitchen.z0 + 0.45, 0);
+  put(floor0, F.kitchenLinear(1.4), R.kitchen.x1 - 0.34, R.kitchen.z1 - 0.8, Math.PI / 2);
+  // fridge fills that gap: corner against the right wall + the stair-side wall, in line with the counter
+  put(floor0, F.fridge(), R.kitchen.x1 - 0.35, R.kitchen.z0 + 0.42, -Math.PI / 2);
   // carport + greenery
   put(floor0, F.car(0x5f6b78), L.W - 1.05, Math.min(L.zCar - 0.25, 2.3));   // parked clear of the relocated door
   put(floor0, F.plant(1.7), 0.45, L.zCar - 0.8);
