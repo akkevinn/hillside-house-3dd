@@ -57,7 +57,11 @@ tex.wall.repeat.set(3, 3);
 /* ============================ model build / rebuild ============================ */
 const params = { ...DEFAULTS };
 let model = null;
-const VERSIONS = [{ id: 'default', name: 'Default' }, { id: 'gym', name: 'Gym & Office' }];
+const VERSIONS = [
+  { id: 'default', name: 'Default' },
+  { id: 'gym', name: 'Gym & Office' },
+  { id: 'newborn', name: 'New Born Baby' },
+];
 let version = 'default';
 const $ = id => document.getElementById(id);
 const C = (rect) => [(rect.x0 + rect.x1) / 2, (rect.z0 + rect.z1) / 2];
@@ -88,10 +92,17 @@ function furnish(L, floor0, floor1, labels, lights) {
   put(floor0, F.tvWall(1.4), R.living.x0 + 0.16, lz, Math.PI / 2);                   // faces +x
   put(floor0, F.sofa(1.6, PAL.fabricBlue), 1.95, lz, -Math.PI / 2);                  // faces -x toward TV, near it
   put(floor0, F.plant(1.5), R.living.x1 - 0.4, R.living.z1 - 0.4);
-  // dining — round table saves space vs a rectangular one
+  // dining — round table (default); in "New Born Baby" the table is removed and the space
+  // becomes a temporary sleeping area for mother + baby (husband uses the sofa as a sofa bed)
   let [dx, dz] = C(R.dining);
-  put(floor0, F.roundDiningSet(4), dx, dz);
-  put(floor0, F.plant(1.3), R.dining.x0 + 0.45, R.dining.z1 - 0.5);
+  if (version === 'newborn') {
+    put(floor0, F.bed(0.95, 2.0, PAL.fabricSand), R.dining.x0 + 1.0, R.dining.z0 + 0.9, Math.PI / 2);  // mother's single bed
+    put(floor0, F.nightstand(), R.dining.x0 + 0.35, R.dining.z0 + 0.35, 0);
+    put(floor0, F.crib(), R.dining.x1 - 0.5, R.dining.z0 + 0.85, 0);                                    // baby crib moved down from 2F
+  } else {
+    put(floor0, F.roundDiningSet(4), dx, dz);
+    put(floor0, F.plant(1.3), R.dining.x0 + 0.45, R.dining.z1 - 0.5);
+  }
   // toilet
   put(floor0, F.toilet(), R.toilet.x1 - 0.25, R.toilet.z1 - 0.4, -Math.PI / 2);
   put(floor0, F.basin(), R.toilet.x0 + 0.45, R.toilet.z1 - 0.3, Math.PI);   // back wall, clear of the door
@@ -131,7 +142,7 @@ function furnish(L, floor0, floor1, labels, lights) {
   // KM/WC 2
   put(floor1, F.toilet(), R.wc2.x0 + 0.32, R.wc2.z1 - 0.5, Math.PI / 2, FH);
   put(floor1, F.basin(), R.wc2.x1 - 0.32, R.wc2.z1 - 0.55, -Math.PI / 2, FH);
-  if (version === 'gym') {
+  if (version === 'gym' || version === 'newborn') {
     // KAMAR TIDUR 2 → home gym + work corner
     put(floor1, F.desk(), R.bed2.x0 + 0.4, R.bed2.z1 - 0.7, Math.PI / 2, FH);          // work corner (back-left)
     put(floor1, F.officeChair(), R.bed2.x0 + 1.05, R.bed2.z1 - 0.7, -Math.PI / 2, FH);
@@ -141,11 +152,11 @@ function furnish(L, floor0, floor1, labels, lights) {
     put(floor1, F.dumbbellRack(), R.bed2.x0 + 0.6, R.bed2.z0 + 0.45, 0, FH);
     put(floor1, F.cableMachine(), R.bed2.x1 - 0.35, R.bed2.z0 + 1.55, -Math.PI / 2, FH);
     put(floor1, F.pullUpTower(), R.bed2.x1 - 0.55, R.bed2.z1 - 0.55, Math.PI, FH);
-    // KAMAR TIDUR 3 → baby / kids room
-    put(floor1, F.crib(), R.bed3.x1 - 0.55, R.bed3.z1 - 0.9, 0, FH);
+    // KAMAR TIDUR 3 → nursery (crib only in "Gym & Office"; in "New Born Baby" it's moved downstairs)
     put(floor1, F.wardrobe(1.0, 1.7), R.bed3.x0 + 0.32, R.bed3.z0 + 1.0, Math.PI / 2, FH);
     put(floor1, F.rug(1.4, 1.3, PAL.fabricSage), R.bed3.x0 + 1.05, R.bed3.z0 + 1.5, 0, FH);
     put(floor1, F.plant(1.0), R.bed3.x1 - 0.35, R.bed3.z0 + 0.45, 0, FH);
+    if (version === 'gym') put(floor1, F.crib(), R.bed3.x1 - 0.55, R.bed3.z1 - 0.9, 0, FH);
   } else {
     // default — two bedrooms
     put(floor1, F.bed(1.4, 2.0, PAL.fabricBlue), R.bed2.x0 + 1.0, R.bed2.z0 + 1.25, Math.PI / 2, FH);
@@ -166,10 +177,12 @@ function furnish(L, floor0, floor1, labels, lights) {
   lampAt(floor1, (R.wc1.x0 + R.wc1.x1) / 2, FH + 2.4, (R.wc1.z0 + R.wc1.z1) / 2, 0xcfe8ff);
 
   /* labels */
-  const b2Label = version === 'gym' ? 'Gym & Kerja' : 'Kamar Tidur 2';
-  const b3Label = version === 'gym' ? 'Kamar Bayi' : 'Kamar Tidur 3';
+  const gymVer = version === 'gym' || version === 'newborn';
+  const b2Label = gymVer ? 'Gym & Kerja' : 'Kamar Tidur 2';
+  const b3Label = gymVer ? 'Kamar Bayi' : 'Kamar Tidur 3';
+  const diningLabel = version === 'newborn' ? 'Kamar Ibu & Bayi' : 'Ruang Makan';
   const lab = [
-    ['Carport', L.W / 2, L.zCar - 1.6, 1.5], ['Ruang Tamu', lx, lz, 1.6], ['Ruang Makan', dx, dz, 1.6],
+    ['Carport', L.W / 2, L.zCar - 1.6, 1.5], ['Ruang Tamu', lx, lz, 1.6], [diningLabel, dx, dz, 1.6],
     ['Dapur', kx, kz, 1.6], ['Toilet', (R.toilet.x0 + R.toilet.x1) / 2, (R.toilet.z0 + R.toilet.z1) / 2, 1.55],
     ['Backyard', L.W / 2, (L.zEnc + L.zBL) / 2, 1.6],
     ['Kamar Tidur 1', mx, mz, 4.7], ['KM/WC 1', (R.wc1.x0 + R.wc1.x1) / 2, (R.wc1.z0 + R.wc1.z1) / 2, 4.6],
@@ -205,8 +218,14 @@ function rebuild() {
 }
 
 function updateLegend() {
-  const l2 = version === 'gym' ? 'kamar utama · kamar bayi · gym &amp; kerja · 2 KM/WC' : '3 kamar tidur · 2 KM/WC';
-  $('legend').innerHTML = 'Lantai 1: carport · ruang tamu · ruang makan · dapur · toilet · backyard &nbsp;|&nbsp; Lantai 2: ' + l2;
+  let s;
+  if (version === 'newborn')
+    s = 'Lantai 1: carport · ruang tamu (kasur sofa) · kamar ibu &amp; bayi · dapur · toilet · backyard &nbsp;|&nbsp; Lantai 2: kamar utama · gym &amp; kerja · 2 KM/WC';
+  else if (version === 'gym')
+    s = 'Lantai 1: carport · ruang tamu · ruang makan · dapur · toilet · backyard &nbsp;|&nbsp; Lantai 2: kamar utama · gym &amp; kerja · kamar bayi · 2 KM/WC';
+  else
+    s = 'Lantai 1: carport · ruang tamu · ruang makan · dapur · toilet · backyard &nbsp;|&nbsp; Lantai 2: 3 kamar tidur · 2 KM/WC';
+  $('legend').innerHTML = s;
 }
 
 /* ============================ visibility / time ============================ */
