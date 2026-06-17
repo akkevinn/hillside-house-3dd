@@ -99,12 +99,21 @@ function furnish(L, floor0, floor1, labels, lights) {
   let [kx, kz] = C(R.kitchen);
   put(floor0, F.kitchenLinear(Math.min(1.9, R.kitchen.z1 - R.kitchen.z0 - 0.4)), R.kitchen.x1 - 0.34, kz, Math.PI / 2);
   put(floor0, F.fridge(), R.kitchen.x0 + 0.4, R.kitchen.z1 - 0.5, Math.PI);
-  put(floor0, F.washer(), R.kitchen.x1 - 0.4, R.kitchen.z1 - 0.35, Math.PI);
   // carport + greenery
   put(floor0, F.car(0x5f6b78), L.W - 1.05, Math.min(L.zCar - 0.25, 2.3));   // parked clear of the relocated door
   put(floor0, F.plant(1.7), 0.45, L.zCar - 0.8);
-  put(floor0, F.plant(2.1), 1.2, L.zEnc + (L.zBL - L.zEnc) * 0.5);
-  put(floor0, F.plant(1.5), L.W - 0.9, L.zEnc + (L.zBR - L.zEnc) * 0.65);
+
+  // backyard — laundry corner (washer + jemuran under a canopy) by the service door, lawn + camping set
+  put(floor0, F.canopy(2.5, 2.2, 2.2), 1.3, L.zEnc + 1.15, 0);
+  put(floor0, F.washer(), 0.7, L.zEnc + 0.5, 0);
+  put(floor0, F.jemuran(2.0), 1.55, L.zEnc + 1.65, 0);
+  put(floor0, F.campTable(), 3.4, L.zEnc + 3.6, 0);
+  put(floor0, F.campChair(0x3f6f57), 3.4, L.zEnc + 2.75, 0);
+  put(floor0, F.campChair(0xb1573a), 3.4, L.zEnc + 4.45, Math.PI);
+  put(floor0, F.campChair(0x4a6075), 2.5, L.zEnc + 3.6, Math.PI / 2);
+  put(floor0, F.campChair(0xc9a24a), 4.3, L.zEnc + 3.6, -Math.PI / 2);
+  put(floor0, F.plant(1.8), 0.6, L.zBL - 0.9);
+  put(floor0, F.plant(1.4), L.W - 0.6, L.zBR - 0.9);
 
   /* --- LANTAI 2 --- */
   const [mx, mz] = C(R.master), [b2x, b2z] = C(R.bed2), [b3x, b3z] = C(R.bed3), [hx, hz] = C(R.hall);

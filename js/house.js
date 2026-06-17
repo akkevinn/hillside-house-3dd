@@ -133,7 +133,9 @@ export function buildHouse(textures = {}, L) {
 
   /* slabs */
   slab(groups.structure, X0, X1, 0, zEnc, 0.0, mat(0xb6b3ab, { rough: 0.9 }));
-  slab(groups.grounds, X0, X1, zEnc, zBL, 0.0, mat(0xb0ada4, { rough: 0.95 }));
+  // backyard: lawn for the open space + a small paved utility pad by the service door
+  finishFloor(groups.grounds, X0, X1, zEnc, zBL, 0.0, TEX.grass);
+  finishFloor(groups.grounds, 0.15, 2.6, zEnc + 0.1, zEnc + 2.2, 0.05, TEX.paving);
   const f2m = mat(0xcaa46f, { rough: 0.85 });
   slab(groups.structure, X0, SV.x0, zF2, f2Back, FH, f2m);
   slab(groups.structure, SV.x1, X1, zF2, f2Back, FH, f2m);

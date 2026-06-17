@@ -459,3 +459,65 @@ export function art(w = 0.8, h = 1.1, color = 0x6a7f8a) {
   g.add(box(w, h, 0.01, color, { pos: [0, 0, 0.02], rough: 0.6 }));
   return g;
 }
+
+/* ===================== outdoor / backyard ===================== */
+
+// Temporary canopy: 4 posts + a canvas roof (covers the laundry/utility area).
+export function canopy(w = 2.6, d = 2.2, h = 2.2, color = 0xdacbab) {
+  const g = G();
+  const post = mat(0x8d9197, { metal: 0.5, rough: 0.5 });
+  [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sz]) =>
+    g.add(cyl(0.04, 0.04, h, post, { pos: [sx * (w / 2 - 0.06), h / 2, sz * (d / 2 - 0.06)], seg: 8 })));
+  g.add(box(w, 0.05, d, mat(color, { rough: 0.9, side: THREE.DoubleSide }), { pos: [0, h + 0.03, 0] }));  // canvas roof
+  g.add(box(w, 0.14, 0.03, mat(0xc7b690, { rough: 0.9 }), { pos: [0, h - 0.05, d / 2 - 0.02] }));          // front valance
+  return g;
+}
+
+// Jemuran — clothesline between two posts, with a few hanging clothes.
+export function jemuran(w = 2.2, h = 1.6) {
+  const g = G();
+  const post = mat(0xb8bdc2, { metal: 0.4, rough: 0.5 });
+  g.add(cyl(0.03, 0.03, h, post, { pos: [-w / 2, h / 2, 0], seg: 8 }));
+  g.add(cyl(0.03, 0.03, h, post, { pos: [w / 2, h / 2, 0], seg: 8 }));
+  g.add(box(0.05, 0.05, 0.5, post, { pos: [-w / 2, h, 0] }));
+  g.add(box(0.05, 0.05, 0.5, post, { pos: [w / 2, h, 0] }));
+  const lineMat = mat(0xeeeeee, { rough: 0.8 });
+  [-0.18, 0, 0.18].forEach(dz => [h - 0.04, h - 0.22].forEach(yy => {
+    const l = cyl(0.006, 0.006, w, lineMat, { seg: 4, cast: false });
+    l.rotation.z = Math.PI / 2; l.position.set(0, yy, dz); g.add(l);
+  }));
+  const cols = [0x6fa0c0, 0xd98c6a, 0xeae4d8, 0x7c8a6a];
+  [-0.6, -0.1, 0.4, 0.85].forEach((x, i) => {
+    const c = box(0.42, 0.55, 0.02, mat(cols[i % 4], { rough: 0.95, side: THREE.DoubleSide }));
+    c.position.set(x, h - 0.32, ((i % 3) - 1) * 0.18); g.add(c);
+  });
+  return g;
+}
+
+// Folding camping chair (X-frame + fabric seat/back).
+export function campChair(color = 0x3f6f57) {
+  const g = G();
+  const frame = mat(0x2a2c2f, { metal: 0.5, rough: 0.45 });
+  const fab = mat(color, { rough: 0.95, side: THREE.DoubleSide });
+  g.add(box(0.5, 0.04, 0.46, fab, { pos: [0, 0.42, 0] }));                                  // seat
+  const back = box(0.5, 0.5, 0.04, fab, { pos: [0, 0.66, -0.21] }); back.rotation.x = -0.2; g.add(back);
+  [-0.24, 0.24].forEach(sx => {                                                              // side X-frames
+    const a = cyl(0.018, 0.018, 0.62, frame, { seg: 6 }); a.position.set(sx, 0.3, 0); a.rotation.x = 0.6; g.add(a);
+    const b = cyl(0.018, 0.018, 0.62, frame, { seg: 6 }); b.position.set(sx, 0.3, 0); b.rotation.x = -0.6; g.add(b);
+  });
+  [-0.26, 0.26].forEach(sx => g.add(box(0.035, 0.035, 0.42, frame, { pos: [sx, 0.6, 0.02] })));  // armrests
+  return g;
+}
+
+// Folding camping table.
+export function campTable() {
+  const g = G();
+  const top = mat(0xc7ccd1, { metal: 0.3, rough: 0.5 });
+  const leg = mat(0x2a2c2f, { metal: 0.5, rough: 0.45 });
+  g.add(box(1.0, 0.05, 0.6, top, { pos: [0, 0.52, 0] }));
+  [-0.4, 0.4].forEach(sx => {
+    const a = cyl(0.02, 0.02, 0.72, leg, { seg: 6 }); a.position.set(sx, 0.26, 0); a.rotation.x = 0.7; g.add(a);
+    const b = cyl(0.02, 0.02, 0.72, leg, { seg: 6 }); b.position.set(sx, 0.26, 0); b.rotation.x = -0.7; g.add(b);
+  });
+  return g;
+}
