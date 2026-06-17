@@ -96,9 +96,11 @@ function furnish(L, floor0, floor1, labels, lights) {
   // becomes a temporary sleeping area for mother + baby (husband uses the sofa as a sofa bed)
   let [dx, dz] = C(R.dining);
   if (version === 'newborn') {
-    put(floor0, F.bed(0.95, 2.0, PAL.fabricSand), R.dining.x0 + 1.0, R.dining.z0 + 0.9, Math.PI / 2);  // mother's single bed
-    put(floor0, F.nightstand(), R.dining.x0 + 0.35, R.dining.z0 + 0.35, 0);
-    put(floor0, F.crib(), R.dining.x1 - 0.5, R.dining.z0 + 0.85, 0);                                    // baby crib moved down from 2F
+    // mother's bed + baby crib hug the solid LEFT wall so the kitchen-side opening (right)
+    // and the backyard door (back-left) both stay clear to walk through
+    put(floor0, F.bed(0.95, 2.0, PAL.fabricSand), R.dining.x0 + 1.0, R.dining.z0 + 1.05, Math.PI / 2);  // mother's single bed, headboard to wall
+    put(floor0, F.crib(), R.dining.x0 + 0.66, R.dining.z0 - 0.1, Math.PI / 2);                          // crib tucked against the wall, just in front of the bed
+    put(floor0, F.nightstand(), R.dining.x0 + 0.35, R.dining.z0 + 1.95, 0);                             // bedside, clear of the backyard door
   } else {
     put(floor0, F.roundDiningSet(4), dx, dz);
     put(floor0, F.plant(1.3), R.dining.x0 + 0.45, R.dining.z1 - 0.5);
