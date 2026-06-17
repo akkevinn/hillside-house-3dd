@@ -145,6 +145,23 @@ export function chair(color = PAL.woodLight) {
   return g;
 }
 
+// Round pedestal dining table + chairs — saves space vs a rectangular table.
+export function roundDiningSet(seats = 4, r = 0.6) {
+  const g = G();
+  const topH = 0.75;
+  g.add(cyl(r, r, 0.05, mat(PAL.woodMid, { rough: 0.6 }), { pos: [0, topH, 0], seg: 28 }));        // round top
+  g.add(cyl(0.07, 0.09, topH - 0.05, mat(PAL.woodDark), { pos: [0, (topH - 0.05) / 2, 0], seg: 12 })); // pedestal
+  g.add(cyl(0.28, 0.28, 0.04, mat(PAL.woodDark), { pos: [0, 0.02, 0], seg: 20 }));                  // base foot
+  for (let i = 0; i < seats; i++) {
+    const a = (i / seats) * Math.PI * 2;
+    const ch = chair();
+    ch.position.set(Math.cos(a) * (r + 0.32), 0, Math.sin(a) * (r + 0.32));
+    ch.rotation.y = Math.atan2(-Math.cos(a), -Math.sin(a));   // face the centre
+    g.add(ch);
+  }
+  return g;
+}
+
 /* -------------------------------------------------------------- kitchen */
 // L-shaped run along -x wall and back +z wall. Returns group anchored at corner.
 export function kitchen() {

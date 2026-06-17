@@ -79,18 +79,16 @@ function furnish(L, floor0, floor1, labels, lights) {
   const lampAt = (parent, x, y, z, color = 0xffe1b0, dist = 6) => { const p = new THREE.PointLight(color, 0, dist, 2); p.position.set(x, y, z); parent.add(p); lights.push(p); };
 
   /* --- LANTAI 1 --- */
-  // living — TV on the solid side wall (clean background); sofa opposite, seating in the front
-  // portion (the partition door now sits at the rear of the wall)
+  // living — TV on the solid left wall; sofa pulled toward it (no coffee table) so the
+  // entry door and the powder-room door stay clear to walk through
   let [lx, lz] = C(R.living);
-  const lzF = R.living.z0 + 1.05;
-  put(floor0, F.rug(Math.min(2.4, R.living.x1 - R.living.x0 - 0.5), 1.7, PAL.fabricSand), lx, lzF);
-  put(floor0, F.tvWall(1.4), R.living.x0 + 0.16, lzF, Math.PI / 2);                  // faces +x
-  put(floor0, F.sofa(1.6, PAL.fabricBlue), R.living.x1 - 0.55, lzF, -Math.PI / 2);   // faces -x toward TV
-  put(floor0, F.coffeeTable(), lx, lzF);
+  put(floor0, F.rug(Math.min(2.4, R.living.x1 - R.living.x0 - 0.5), 1.7, PAL.fabricSand), 1.4, lz);
+  put(floor0, F.tvWall(1.4), R.living.x0 + 0.16, lz, Math.PI / 2);                   // faces +x
+  put(floor0, F.sofa(1.6, PAL.fabricBlue), 1.95, lz, -Math.PI / 2);                  // faces -x toward TV, near it
   put(floor0, F.plant(1.5), R.living.x1 - 0.4, R.living.z1 - 0.4);
-  // dining
+  // dining — round table saves space vs a rectangular one
   let [dx, dz] = C(R.dining);
-  put(floor0, F.diningSet(6), dx, dz);
+  put(floor0, F.roundDiningSet(4), dx, dz);
   put(floor0, F.plant(1.3), R.dining.x0 + 0.45, R.dining.z1 - 0.5);
   // toilet
   put(floor0, F.toilet(), R.toilet.x1 - 0.25, R.toilet.z1 - 0.4, -Math.PI / 2);
