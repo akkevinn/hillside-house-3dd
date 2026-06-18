@@ -119,6 +119,10 @@ export function buildHouse(textures = {}, L, version = 'default') {
   const TEX = textures;
   const { W, zCar, zEnc, zF2, zBL, zBR, splitX, FH, SV, f2Back } = L;
   const X0 = 0, X1 = W;
+  // Phase 2 breaks the rear wall and pushes the dining/kitchen ~1.5 m into the
+  // backyard (open-plan). gfBack = the conditioned ground floor's new rear line.
+  const ph2 = version === 'phase2';
+  const gfBack = ph2 ? zEnc + 1.5 : zEnc;
   const groups = { structure: new THREE.Group(), wallsExt: new THREE.Group(), roof: new THREE.Group(), grounds: new THREE.Group() };
 
   const extMat = mat(PAL.wallWhite, { rough: 0.95 }); if (TEX.wall) extMat.map = TEX.wall;
@@ -132,16 +136,17 @@ export function buildHouse(textures = {}, L, version = 'default') {
   groups.grounds.add(lot);
 
   /* slabs */
-  slab(groups.structure, X0, X1, 0, zEnc, 0.0, mat(0xb6b3ab, { rough: 0.9 }));
-  // backyard: open lawn + paved utility pad (default/Phase 1) OR a renovated annex (Phase 2)
-  if (version === 'phase2') {
-    const zb = 12.5;                                                           // bedroom front line
-    finishFloor(groups.grounds, X0, 2.2, zEnc, zb, 0.0, TEX.paving);           // courtyard (open: air + jemuran)
-    finishFloor(groups.grounds, 2.2, X1, zEnc, 10.9, 0.0, TEX.tile);           // gudang / warehouse
-    finishFloor(groups.grounds, 2.2, 3.6, 10.9, zb, 0.0, TEX.tileBath);        // shower
-    finishFloor(groups.grounds, 3.6, X1, 10.9, zb, 0.0, TEX.tile);            // laundry
-    finishFloor(groups.grounds, X0, X1, zb, zBR, 0.0, TEX.wood);              // bedroom
-    finishFloor(groups.grounds, X0, 2.4, zBR, zBL, 0.0, TEX.wood);            // bedroom, deeper left corner
+  slab(groups.structure, X0, X1, 0, gfBack, 0.0, mat(0xb6b3ab, { rough: 0.9 }));
+  if (ph2) {
+    // Phase 2 renovated backyard. Rooms band (gfBack..rB) then an open garden at the back.
+    const rB = 13.6, wetB = 12.5, bedR = 2.6, shR = 3.6;
+    finishFloor(groups.grounds, X0, bedR, gfBack, rB, 0.0, TEX.wood);          // kamar / bedroom
+    finishFloor(groups.grounds, bedR, shR, gfBack, wetB, 0.0, TEX.tileBath);   // shower
+    finishFloor(groups.grounds, shR, X1, gfBack, wetB, 0.0, TEX.tile);         // laundry (kept)
+    finishFloor(groups.grounds, bedR, X1, wetB, rB, 0.0, TEX.tile);            // gudang / warehouse
+    finishFloor(groups.grounds, X0, X1, rB, rB + 0.8, 0.0, TEX.paving);        // garden patio strip
+    finishFloor(groups.grounds, X0, X1, rB + 0.8, zBR, 0.0, TEX.grass);        // garden lawn
+    finishFloor(groups.grounds, X0, 2.4, zBR, zBL, 0.0, TEX.grass);            // garden, deeper-left
   } else {
     finishFloor(groups.grounds, X0, X1, zEnc, zBL, 0.0, TEX.grass);
     finishFloor(groups.grounds, 0.15, 2.6, zEnc + 0.1, zEnc + 2.2, 0.05, TEX.paving);
@@ -154,15 +159,17 @@ export function buildHouse(textures = {}, L, version = 'default') {
   slab(groups.roof, X0, X1, zF2, f2Back, 2 * FH, mat(0xd6d2c8, { rough: 0.9 }));
 
   /* finishes */
-  finishFloor(groups.structure, X0, splitX, zCar, zEnc, 0, TEX.wood);
-  finishFloor(groups.structure, splitX, X1, zCar, zEnc, 0, TEX.tile);
+  finishFloor(groups.structure, X0, splitX, zCar, gfBack, 0, TEX.wood);
+  finishFloor(groups.structure, splitX, X1, zCar, gfBack, 0, TEX.tile);
+  // the extension reaches 1.5 m back; its rear 0.7 m sticks out past the L2 floor → roof it at FH
+  if (ph2) slab(groups.structure, X0, X1, f2Back, gfBack, FH, mat(0xcaa46f, { rough: 0.85 }));
   finishFloor(groups.structure, X0, SV.x0, zF2, f2Back, FH, TEX.wood);
   finishFloor(groups.structure, SV.x1, X1, zF2, f2Back, FH, TEX.wood);
   finishFloor(groups.structure, SV.x0, SV.x1, SV.z1, f2Back, FH, TEX.wood);
   finishFloor(groups.structure, L.rooms.wc1.x0, X1, L.rooms.wc1.z0, L.rooms.wc1.z1, FH, TEX.tileBath);
   finishFloor(groups.structure, L.rooms.wc2.x0, L.rooms.wc2.x1, L.rooms.wc2.z0, L.rooms.wc2.z1, FH, TEX.tileBath);
   finishFloor(groups.grounds, X0, X1, 0, zCar, 0, TEX.paving);
-  ceiling(groups.structure, X0, X1, zCar, zEnc, FH - 0.02);
+  ceiling(groups.structure, X0, X1, zCar, gfBack, FH - 0.02);
   ceiling(groups.structure, X0, X1, zF2, f2Back, 2 * FH - 0.02);
 
   /* ===== GROUND walls ===== */
@@ -170,13 +177,21 @@ export function buildHouse(textures = {}, L, version = 'default') {
     { from: 0.7, to: 1.6, sill: 0.9, head: 2.2, kind: 'window' },   // window & door swapped
     { from: 2.0, to: 2.9, sill: 0, head: 2.2, kind: 'door' },
   ], extMat);
-  wall(groups.wallsExt, 'x', zEnc, X0, X1, 0, FH, [
-    { from: 0.7, to: 1.6, sill: 0, head: 2.2, kind: 'door' },       // backyard door on the left (swapped)
-    { from: 2.0, to: 3.3, sill: 0.2, head: 2.3, kind: 'window' },   // window to its right, clear of kitchen
-  ], extMat);
-  // side walls are solid — windows only on front & back faces
-  wall(groups.wallsExt, 'z', X0, zCar, zEnc, 0, FH, [], extMat);
-  wall(groups.wallsExt, 'z', X1, zCar, zEnc, 0, FH, [], extMat);
+  if (ph2) {
+    // back wall pushed out to gfBack; doors from the extended dining→kamar and kitchen→laundry
+    wall(groups.wallsExt, 'x', gfBack, X0, X1, 0, FH, [
+      { from: 0.7, to: 1.5, sill: 0, head: 2.1, kind: 'door' },
+      { from: 3.9, to: 4.6, sill: 0, head: 2.1, kind: 'door' },
+    ], extMat);
+  } else {
+    wall(groups.wallsExt, 'x', zEnc, X0, X1, 0, FH, [
+      { from: 0.7, to: 1.6, sill: 0, head: 2.2, kind: 'door' },       // backyard door on the left (swapped)
+      { from: 2.0, to: 3.3, sill: 0.2, head: 2.3, kind: 'window' },   // window to its right, clear of kitchen
+    ], extMat);
+  }
+  // side walls are solid — windows only on front & back faces (extended to gfBack in Phase 2)
+  wall(groups.wallsExt, 'z', X0, zCar, gfBack, 0, FH, [], extMat);
+  wall(groups.wallsExt, 'z', X1, zCar, gfBack, 0, FH, [], extMat);
   // partitions —
   // entry → door on the right into the powder/toilet room (door in the living|toilet partition).
   // Behind the toilet the partition stops, so the staircase is reached openly from the left (no door).
@@ -239,25 +254,24 @@ export function buildHouse(textures = {}, L, version = 'default') {
   const gmat = mat(PAL.wallWarm, { rough: 0.95 }); if (TEX.wall) gmat.map = TEX.wall;
   wall(groups.wallsExt, 'z', X0, 0, zF2, 0, YARD_H, [], gmat);
   wall(groups.wallsExt, 'z', X1, 0, zF2, 0, YARD_H, [], gmat);
-  wall(groups.wallsExt, 'z', X0, zEnc, zBL, 0, YARD_H, [], gmat);
-  wall(groups.wallsExt, 'z', X1, zEnc, zBR, 0, YARD_H, [], gmat);
+  wall(groups.wallsExt, 'z', X0, gfBack, zBL, 0, YARD_H, [], gmat);
+  wall(groups.wallsExt, 'z', X1, gfBack, zBR, 0, YARD_H, [], gmat);
   const dx = W, dz = zBR - zBL;
   const back = box(Math.hypot(dx, dz), YARD_H, T, gmat, { pos: [W / 2, YARD_H / 2, (zBL + zBR) / 2] });
   back.rotation.y = -Math.atan2(dz, dx); groups.wallsExt.add(back);
   groups.wallsExt.add(box(0.25, 1.4, 0.25, gmat, { pos: [0.2, 0.7, 0.1] }));
   groups.wallsExt.add(box(0.25, 1.4, 0.25, gmat, { pos: [W - 0.2, 0.7, 0.1] }));
 
-  /* ===== Phase 2 backyard annex: partitions + flat roofs (courtyard left open) ===== */
-  if (version === 'phase2') {
-    const zb = 12.5, h = YARD_H;
+  /* ===== Phase 2 backyard: room band (kamar/shower/laundry/gudang) + open garden ===== */
+  if (ph2) {
+    const rB = 13.6, wetB = 12.5, bedR = 2.6, shR = 3.6, h = YARD_H;
     const door = (from, to) => ({ from, to, sill: 0, head: 2.05, kind: 'door' });
-    wall(groups.structure, 'z', 2.2, zEnc, zb, 0, h, [door(zEnc + 0.4, zEnc + 1.0), door(11.35, 12.0)], intMat); // courtyard | gudang + shower
-    wall(groups.structure, 'x', 10.9, 2.2, X1, 0, h, [door(4.0, 4.6)], intMat);   // gudang | shower+laundry (door → laundry)
-    wall(groups.structure, 'z', 3.6, 10.9, zb, 0, h, [], intMat);                 // shower | laundry
-    wall(groups.structure, 'x', zb, X0, X1, 0, h, [door(0.8, 1.5)], intMat);      // bedroom front wall (door from courtyard)
+    wall(groups.structure, 'z', bedR, gfBack, rB, 0, h, [door(gfBack + 0.3, gfBack + 0.95)], intMat); // kamar | shower+gudang (door kamar→shower)
+    wall(groups.structure, 'z', shR, gfBack, wetB, 0, h, [], intMat);                  // shower | laundry (solid)
+    wall(groups.structure, 'x', wetB, bedR, X1, 0, h, [door(3.9, 4.6)], intMat);       // shower+laundry | gudang (door laundry→gudang)
+    wall(groups.structure, 'x', rB, X0, X1, 0, h, [door(1.9, 2.45), door(3.9, 4.6)], intMat); // rooms | garden (kamar→garden, gudang→garden)
     const rmat = mat(0xd6d2c8, { rough: 0.9 });
-    slab(groups.roof, 2.2, X1, zEnc, zb, h + SLAB, rmat);   // roof over gudang + shower + laundry
-    slab(groups.roof, X0, X1, zb, zBL, h + SLAB, rmat);     // roof over bedroom
+    slab(groups.roof, X0, X1, gfBack, rB, h + SLAB, rmat);  // flat roof over the room band; garden left open
   }
 
   /* ===== carport columns + roof parapet ===== */

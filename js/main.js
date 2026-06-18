@@ -97,7 +97,10 @@ function furnish(L, floor0, floor1, labels, lights) {
   // dining — round table (default); in "New Born Baby" the table is removed and the space
   // becomes a temporary sleeping area for mother + baby (husband uses the sofa as a sofa bed)
   let [dx, dz] = C(R.dining);
-  if (version === 'newborn') {
+  if (version === 'phase2') {
+    // dining is extended ~1.5 m into the backyard (open-plan) → a bigger 6-seat table
+    put(floor0, F.diningSet(6), R.dining.x0 + 1.55, R.dining.z1 + 0.15, 0);
+  } else if (version === 'newborn') {
     // mother's bed + baby crib hug the solid LEFT wall so the kitchen-side opening (right)
     // and the backyard door (back-left) both stay clear to walk through
     put(floor0, F.bed(0.95, 2.0, PAL.fabricSand), R.dining.x0 + 1.0, R.dining.z0 + 1.05, Math.PI / 2);  // mother's single bed, headboard to wall
@@ -115,33 +118,36 @@ function furnish(L, floor0, floor1, labels, lights) {
   put(floor0, F.kitchenLinear(1.4), R.kitchen.x1 - 0.34, R.kitchen.z1 - 0.8, Math.PI / 2);
   // fridge fills that gap: corner against the right wall + the stair-side wall, in line with the counter
   put(floor0, F.fridge(), R.kitchen.x1 - 0.35, R.kitchen.z0 + 0.42, -Math.PI / 2);
+  // Phase 2: the kitchen now reaches into the extension → continue the counter along the right wall
+  if (version === 'phase2') put(floor0, F.kitchenLinear(1.1), R.kitchen.x1 - 0.34, R.kitchen.z1 + 0.7, Math.PI / 2);
   // carport + greenery
   put(floor0, F.car(0x5f6b78), L.W - 1.05, Math.min(L.zCar - 0.25, 2.3));   // parked clear of the relocated door
   put(floor0, F.plant(1.7), 0.45, L.zCar - 0.8);
 
   // backyard — open lawn with a laundry/camping setup (default/Phase 1) OR the Phase 2 annex
   if (version === 'phase2') {
-    const zb = 12.5;
-    // BEDROOM (back, most private): king bed against the back wall + a small library
-    put(floor0, F.bed(1.8, 2.0, PAL.fabricSand), 2.5, 14.0, Math.PI);                 // king, headboard to back wall
-    put(floor0, F.nightstand(), 1.3, 14.55, 0);
-    put(floor0, F.nightstand(), 3.7, 14.55, 0);
-    put(floor0, F.bookshelf(1.4, 1.8), 0.28, 13.5, Math.PI / 2);                       // library against the left wall
-    put(floor0, F.plant(1.3), L.W - 0.45, zb + 0.55);
-    // SHOWER room (enclosure tucked into the back-right corner, glass toward the door)
-    put(floor0, F.shower(1.0, 0.95), 3.1, 12.0, Math.PI);
-    // LAUNDRY room (washer + sink at the back, clear of the door from the gudang)
-    put(floor0, F.washer(), 4.6, 12.0, Math.PI / 2);
-    put(floor0, F.basin(), 3.85, 12.0, -Math.PI / 2);
-    // GUDANG / warehouse: shelving + crates
-    put(floor0, F.bookshelf(1.4, 1.7), 4.6, 10.1, -Math.PI / 2);
-    put(floor0, F.box(0.62, 0.6, 0.62, PAL.woodMid), 2.7, 9.85, 0, 0.3);
-    put(floor0, F.box(0.52, 0.5, 0.52, PAL.woodMid), 2.7, 10.5, 0.3, 0.25);
-    put(floor0, F.box(0.5, 0.45, 0.5, PAL.woodLight), 3.35, 9.85, -0.2, 0.225);
-    // COURTYARD (open to sky): jemuran + greenery for air + drying
-    put(floor0, F.jemuran(1.8), 1.05, 11.1, 0);
-    put(floor0, F.plant(1.5), 0.5, 9.95);
-    put(floor0, F.plant(1.1), 1.7, 9.85);
+    // Renovated backyard: rooms band (kamar/shower/laundry/gudang) then an open garden at the back.
+    const gfBack = L.zEnc + 1.5;
+    // KAMAR (x0–2.6): queen bed headboard to the garden wall, library on the left wall
+    put(floor0, F.bed(1.6, 2.0, PAL.fabricSand), 1.15, 12.6, Math.PI);
+    put(floor0, F.nightstand(), 2.25, 12.85, 0);
+    put(floor0, F.bookshelf(1.0, 1.7), 0.26, 11.55, Math.PI / 2);
+    // SHOWER (x2.6–3.6): enclosure in the back-right corner, glass toward the bedroom door
+    put(floor0, F.shower(0.9, 0.9), 3.1, 12.0, Math.PI);
+    // LAUNDRY (x3.6–5) — kept: washer + sink along the right wall
+    put(floor0, F.washer(), 4.6, gfBack + 0.5, Math.PI / 2);
+    put(floor0, F.basin(), 4.6, gfBack + 1.2, Math.PI / 2);
+    // GUDANG / warehouse (x2.6–5, behind shower+laundry): shelving + crates
+    put(floor0, F.bookshelf(1.2, 1.6), 3.2, 13.35, Math.PI);
+    put(floor0, F.box(0.55, 0.55, 0.55, PAL.woodMid), 3.0, 12.85, 0, 0.275);
+    put(floor0, F.box(0.5, 0.45, 0.5, PAL.woodLight), 3.5, 12.9, 0.3, 0.225);
+    // TAMAN — open garden at the back: jemuran, greenery, a small outdoor set
+    put(floor0, F.jemuran(2.0), 3.1, 14.2, 0);
+    put(floor0, F.campTable(), 1.3, 14.9, 0);
+    put(floor0, F.campChair(0x4a6075), 1.3, 15.4, Math.PI);
+    put(floor0, F.campChair(0x3f6f57), 0.7, 14.9, Math.PI / 2);
+    put(floor0, F.plant(1.6), 0.5, 14.1);
+    put(floor0, F.plant(1.3), L.W - 0.5, 14.1);
   } else {
     put(floor0, F.canopy(2.5, 2.2, 2.2), 1.3, L.zEnc + 1.15, 0);
     put(floor0, F.washer(), 0.7, L.zEnc + 0.5, 0);
@@ -210,8 +216,8 @@ function furnish(L, floor0, floor1, labels, lights) {
   const b3Label = gymVer ? 'Kamar Bayi' : 'Kamar Tidur 3';
   const diningLabel = version === 'newborn' ? 'Kamar Ibu & Bayi' : 'Ruang Makan';
   const backyardLab = version === 'phase2'
-    ? [['Kamar', 2.5, 14.0, 1.6], ['Gudang', 3.6, 10.0, 1.6], ['Shower', 2.9, 11.7, 1.55],
-       ['Laundry', 4.3, 11.7, 1.55], ['Taman', 1.1, 10.9, 1.6]]
+    ? [['Kamar', 1.15, 12.5, 1.6], ['Shower', 3.1, 11.5, 1.55], ['Laundry', 4.3, 11.5, 1.55],
+       ['Gudang', 3.3, 13.0, 1.55], ['Taman', 2.4, 14.6, 1.6]]
     : [['Backyard', L.W / 2, (L.zEnc + L.zBL) / 2, 1.6]];
   const lab = [
     ['Carport', L.W / 2, L.zCar - 1.6, 1.5], ['Ruang Tamu', lx, lz, 1.6], [diningLabel, dx, dz, 1.6],
@@ -254,7 +260,7 @@ function updateLegend() {
   if (version === 'newborn')
     s = 'Lantai 1: carport · ruang tamu (kasur sofa) · kamar ibu &amp; bayi · dapur · toilet · backyard &nbsp;|&nbsp; Lantai 2: kamar utama · gym &amp; kerja · 2 KM/WC';
   else if (version === 'phase2')
-    s = 'Lantai 1: carport · ruang tamu · ruang makan · dapur · toilet &nbsp;|&nbsp; Backyard (renovasi): kamar + perpustakaan · gudang · shower · laundry · taman (jemuran) &nbsp;|&nbsp; Lantai 2: kamar utama · gym &amp; kerja · kamar bayi · 2 KM/WC';
+    s = 'Lantai 1: carport · ruang tamu · toilet · <b>dapur &amp; ruang makan diperluas</b> (open-plan, dinding belakang dibongkar) &nbsp;|&nbsp; Backyard: kamar + perpustakaan · shower · laundry · gudang · taman terbuka &nbsp;|&nbsp; Lantai 2: kamar utama · gym &amp; kerja · kamar bayi · 2 KM/WC';
   else if (version === 'gym')
     s = 'Lantai 1: carport · ruang tamu · ruang makan · dapur · toilet · backyard &nbsp;|&nbsp; Lantai 2: kamar utama · gym &amp; kerja · kamar bayi · 2 KM/WC';
   else
