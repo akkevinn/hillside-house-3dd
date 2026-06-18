@@ -93,8 +93,8 @@ function furnish(L, floor0, floor1, labels, lights) {
   let [lx, lz] = C(R.living);
   put(floor0, F.rug(2.2, 1.8, PAL.fabricSand), 1.55, lz + 0.2);
   put(floor0, F.tvWall(1.4), R.living.x0 + 0.16, lz + 0.1, Math.PI / 2);             // centred on the left wall, faces +x
-  put(floor0, F.sofa(1.5, PAL.fabricBlue), R.living.x1 - 1.0, lz + 0.3, -Math.PI / 2);  // long arm, faces -x toward TV
-  put(floor0, F.sofa(1.15, PAL.fabricBlue), 1.28, R.living.z1 - 0.5, Math.PI);          // smaller return arm — meets the long arm without overlapping it
+  put(floor0, F.sofa(1.4, PAL.fabricBlue), R.living.x1 - 0.95, lz - 0.05, -Math.PI / 2); // long arm, faces -x toward TV (pulled forward)
+  put(floor0, F.sofa(1.15, PAL.fabricBlue), 1.38, R.living.z1 - 0.4, Math.PI);           // return arm pushed back to the wall, meets the long arm at its rear corner
   put(floor0, F.plant(1.5), R.living.x1 - 0.32, R.living.z1 - 0.4);                     // back corner beside the sofa, clear of the TV
   // dining — round table (default); in "New Born Baby" the table is removed and the space
   // becomes a temporary sleeping area for mother + baby (husband uses the sofa as a sofa bed)
@@ -143,13 +143,14 @@ function furnish(L, floor0, floor1, labels, lights) {
     // LAUNDRY (x3.6–5) — kept: washer + sink along the right wall
     put(floor0, F.washer(), 4.6, 11.4, Math.PI / 2);
     put(floor0, F.basin(), 4.6, 12.1, Math.PI / 2);
-    // TAMAN — open garden (right side) running to the very back: jemuran, greenery, outdoor set
-    put(floor0, F.jemuran(2.0), 3.2, 13.4, 0);
-    put(floor0, F.campTable(), 4.3, 13.6, 0);
-    put(floor0, F.campChair(0x4a6075), 4.3, 14.2, Math.PI);
-    put(floor0, F.campChair(0x3f6f57), 3.7, 13.6, Math.PI / 2);
-    put(floor0, F.plant(1.6), 2.95, 14.5);
-    put(floor0, F.plant(1.3), L.W - 0.4, 12.9);
+    // TAMAN — open garden (right side) running to the very back.
+    // jemuran toward the front; table + chairs by the rear wall so they don't clash with it
+    put(floor0, F.jemuran(1.8), 3.7, 13.0, 0);
+    put(floor0, F.campTable(), 3.5, 14.2, 0);
+    put(floor0, F.campChair(0x4a6075), 3.5, 14.7, Math.PI);
+    put(floor0, F.campChair(0x3f6f57), 2.95, 14.2, Math.PI / 2);
+    put(floor0, F.plant(1.6), 2.9, 13.1);
+    put(floor0, F.plant(1.3), L.W - 0.4, 13.9);
   } else {
     put(floor0, F.canopy(2.5, 2.2, 2.2), 1.3, L.zEnc + 1.15, 0);
     put(floor0, F.washer(), 0.7, L.zEnc + 0.5, 0);

@@ -267,7 +267,7 @@ export function buildHouse(textures = {}, L, version = 'default') {
 
   /* ===== Phase 2 backyard: left column (kamar/shower/gudang) + laundry + open Taman ===== */
   if (ph2) {
-    const bedR = 2.6, kmrB = 13.4, shB = 14.4, lndR = 3.6, wetB = 12.5, gudB = 15.2, h = YARD_H;
+    const bedR = 2.6, kmrB = 13.4, shB = 14.4, lndR = 3.6, wetB = 12.5, gudB = 15.25, h = YARD_H;
     const door = (from, to) => ({ from, to, sill: 0, head: 2.05, kind: 'door' });
     // left column internal walls (stacked front→back: kamar, shower, gudang)
     wall(groups.structure, 'x', kmrB, X0, bedR, 0, h, [door(0.45, 1.05)], intMat);  // kamar | shower (ensuite door)
@@ -278,7 +278,7 @@ export function buildHouse(textures = {}, L, version = 'default') {
     wall(groups.structure, 'z', lndR, gfBack, wetB, 0, h, [door(11.4, 12.0)], intMat); // laundry | taman strip
     wall(groups.structure, 'x', wetB, lndR, X1, 0, h, [], intMat);                     // laundry | taman back (solid)
     const rmat = mat(0xd6d2c8, { rough: 0.9 });
-    slab(groups.roof, X0, bedR, gfBack, gudB, h + SLAB, rmat);   // roof over the left column
+    slab(groups.roof, X0, bedR, gfBack, zBL, h + SLAB, rmat);    // roof over the left column, extended back to meet the rear wall (no gap)
     slab(groups.roof, lndR, X1, gfBack, wetB, h + SLAB, rmat);   // roof over the laundry; Taman open
   }
 
