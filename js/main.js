@@ -128,28 +128,28 @@ function furnish(L, floor0, floor1, labels, lights) {
 
   // backyard — open lawn with a laundry/camping setup (default/Phase 1) OR the Phase 2 annex
   if (version === 'phase2') {
-    // Renovated backyard: rooms band (kamar/shower/laundry/gudang) then an open garden at the back.
-    const gfBack = L.zEnc + 1.5;
-    // KAMAR (x0–2.6): queen bed headboard to the garden wall, library on the left wall
-    put(floor0, F.bed(1.6, 2.0, PAL.fabricSand), 1.15, 12.6, Math.PI);
-    put(floor0, F.nightstand(), 2.25, 12.85, 0);
-    put(floor0, F.bookshelf(1.0, 1.7), 0.26, 11.55, Math.PI / 2);
-    // SHOWER (x2.6–3.6): enclosure in the back-right corner, glass toward the bedroom door
-    put(floor0, F.shower(0.9, 0.9), 3.1, 12.0, Math.PI);
+    // Renovated backyard. LEFT column: kamar → shower → gudang (very back).
+    // RIGHT: laundry (kept) + an open Taman that runs to the very back.
+    // KAMAR (x0–2.6, z10.9–13.4): bed headboard on the left wall, nightstand + library
+    put(floor0, F.bed(1.6, 2.0, PAL.fabricSand), 1.0, 12.15, Math.PI / 2);
+    put(floor0, F.nightstand(), 0.32, 11.5, 0);
+    put(floor0, F.bookshelf(0.9, 1.7), 2.32, 12.9, -Math.PI / 2);          // library against the divider wall
+    // SHOWER (x0–2.6, z13.4–14.4): enclosure in the corner, glass toward the ensuite door
+    put(floor0, F.shower(0.9, 0.9), 1.9, 13.95, Math.PI);
+    // GUDANG / warehouse (x0–2.6, very back): shelving + crates
+    put(floor0, F.bookshelf(1.2, 1.6), 1.0, 15.0, Math.PI);
+    put(floor0, F.box(0.55, 0.55, 0.55, PAL.woodMid), 2.0, 14.85, 0, 0.275);
+    put(floor0, F.box(0.5, 0.45, 0.5, PAL.woodLight), 0.6, 14.8, 0.3, 0.225);
     // LAUNDRY (x3.6–5) — kept: washer + sink along the right wall
-    put(floor0, F.washer(), 4.6, gfBack + 0.5, Math.PI / 2);
-    put(floor0, F.basin(), 4.6, gfBack + 1.2, Math.PI / 2);
-    // GUDANG / warehouse (x2.6–5, behind shower+laundry): shelving + crates
-    put(floor0, F.bookshelf(1.2, 1.6), 3.2, 13.35, Math.PI);
-    put(floor0, F.box(0.55, 0.55, 0.55, PAL.woodMid), 3.0, 12.85, 0, 0.275);
-    put(floor0, F.box(0.5, 0.45, 0.5, PAL.woodLight), 3.5, 12.9, 0.3, 0.225);
-    // TAMAN — open garden at the back: jemuran, greenery, a small outdoor set
-    put(floor0, F.jemuran(2.0), 3.1, 14.2, 0);
-    put(floor0, F.campTable(), 1.3, 14.9, 0);
-    put(floor0, F.campChair(0x4a6075), 1.3, 15.4, Math.PI);
-    put(floor0, F.campChair(0x3f6f57), 0.7, 14.9, Math.PI / 2);
-    put(floor0, F.plant(1.6), 0.5, 14.1);
-    put(floor0, F.plant(1.3), L.W - 0.5, 14.1);
+    put(floor0, F.washer(), 4.6, 11.4, Math.PI / 2);
+    put(floor0, F.basin(), 4.6, 12.1, Math.PI / 2);
+    // TAMAN — open garden (right side) running to the very back: jemuran, greenery, outdoor set
+    put(floor0, F.jemuran(2.0), 3.2, 13.4, 0);
+    put(floor0, F.campTable(), 4.3, 13.6, 0);
+    put(floor0, F.campChair(0x4a6075), 4.3, 14.2, Math.PI);
+    put(floor0, F.campChair(0x3f6f57), 3.7, 13.6, Math.PI / 2);
+    put(floor0, F.plant(1.6), 2.95, 14.5);
+    put(floor0, F.plant(1.3), L.W - 0.4, 12.9);
   } else {
     put(floor0, F.canopy(2.5, 2.2, 2.2), 1.3, L.zEnc + 1.15, 0);
     put(floor0, F.washer(), 0.7, L.zEnc + 0.5, 0);
@@ -218,8 +218,8 @@ function furnish(L, floor0, floor1, labels, lights) {
   const b3Label = gymVer ? 'Kamar Bayi' : 'Kamar Tidur 3';
   const diningLabel = version === 'newborn' ? 'Kamar Ibu & Bayi' : 'Ruang Makan';
   const backyardLab = version === 'phase2'
-    ? [['Kamar', 1.15, 12.5, 1.6], ['Shower', 3.1, 11.5, 1.55], ['Laundry', 4.3, 11.5, 1.55],
-       ['Gudang', 3.3, 13.0, 1.55], ['Taman', 2.4, 14.6, 1.6]]
+    ? [['Kamar', 1.0, 12.0, 1.6], ['Shower', 1.9, 13.9, 1.55], ['Gudang', 1.1, 15.0, 1.55],
+       ['Laundry', 4.3, 11.5, 1.55], ['Taman', 3.6, 13.0, 1.6]]
     : [['Backyard', L.W / 2, (L.zEnc + L.zBL) / 2, 1.6]];
   const lab = [
     ['Carport', L.W / 2, L.zCar - 1.6, 1.5], ['Ruang Tamu', lx, lz, 1.6], [diningLabel, dx, dz, 1.6],

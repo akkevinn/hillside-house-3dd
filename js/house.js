@@ -138,15 +138,17 @@ export function buildHouse(textures = {}, L, version = 'default') {
   /* slabs */
   slab(groups.structure, X0, X1, 0, gfBack, 0.0, mat(0xb6b3ab, { rough: 0.9 }));
   if (ph2) {
-    // Phase 2 renovated backyard. Rooms band (gfBack..rB) then an open garden at the back.
-    const rB = 13.6, wetB = 12.5, bedR = 2.6, shR = 3.6;
-    finishFloor(groups.grounds, X0, bedR, gfBack, rB, 0.0, TEX.wood);          // kamar / bedroom
-    finishFloor(groups.grounds, bedR, shR, gfBack, wetB, 0.0, TEX.tileBath);   // shower
-    finishFloor(groups.grounds, shR, X1, gfBack, wetB, 0.0, TEX.tile);         // laundry (kept)
-    finishFloor(groups.grounds, bedR, X1, wetB, rB, 0.0, TEX.tile);            // gudang / warehouse
-    finishFloor(groups.grounds, X0, X1, rB, rB + 0.8, 0.0, TEX.paving);        // garden patio strip
-    finishFloor(groups.grounds, X0, X1, rB + 0.8, zBR, 0.0, TEX.grass);        // garden lawn
-    finishFloor(groups.grounds, X0, 2.4, zBR, zBL, 0.0, TEX.grass);            // garden, deeper-left
+    // Phase 2 renovated backyard. LEFT column = kamar → shower → gudang (very back, same
+    // width as kamar/shower). RIGHT = laundry (kept) + an open Taman that runs to the very back.
+    const bedR = 2.6, kmrB = 13.4, shB = 14.4, lndR = 3.6, wetB = 12.5;
+    finishFloor(groups.grounds, X0, bedR, gfBack, kmrB, 0.0, TEX.wood);        // kamar
+    finishFloor(groups.grounds, X0, bedR, kmrB, shB, 0.0, TEX.tileBath);       // shower
+    finishFloor(groups.grounds, X0, bedR, shB, zBL, 0.0, TEX.tile);            // gudang (deepest, left)
+    finishFloor(groups.grounds, lndR, X1, gfBack, wetB, 0.0, TEX.tile);        // laundry (kept)
+    finishFloor(groups.grounds, bedR, lndR, gfBack, wetB, 0.0, TEX.paving);    // garden strip beside laundry
+    finishFloor(groups.grounds, bedR, X1, wetB, wetB + 1.0, 0.0, TEX.paving);  // garden patio behind laundry
+    finishFloor(groups.grounds, bedR, X1, wetB + 1.0, zBR, 0.0, TEX.grass);    // garden lawn to the back
+    finishFloor(groups.grounds, bedR, 3.8, zBR, zBL, 0.0, TEX.grass);          // garden, deeper-left
   } else {
     finishFloor(groups.grounds, X0, X1, zEnc, zBL, 0.0, TEX.grass);
     finishFloor(groups.grounds, 0.15, 2.6, zEnc + 0.1, zEnc + 2.2, 0.05, TEX.paving);
@@ -178,9 +180,10 @@ export function buildHouse(textures = {}, L, version = 'default') {
     { from: 2.0, to: 2.9, sill: 0, head: 2.2, kind: 'door' },
   ], extMat);
   if (ph2) {
-    // back wall pushed out to gfBack; doors from the extended dining→kamar and kitchen→laundry
+    // back wall pushed out to gfBack; doors dining→kamar, kitchen→taman (garden), kitchen→laundry
     wall(groups.wallsExt, 'x', gfBack, X0, X1, 0, FH, [
       { from: 0.7, to: 1.5, sill: 0, head: 2.1, kind: 'door' },
+      { from: 2.75, to: 3.45, sill: 0, head: 2.1, kind: 'door' },
       { from: 3.9, to: 4.6, sill: 0, head: 2.1, kind: 'door' },
     ], extMat);
   } else {
@@ -262,16 +265,21 @@ export function buildHouse(textures = {}, L, version = 'default') {
   groups.wallsExt.add(box(0.25, 1.4, 0.25, gmat, { pos: [0.2, 0.7, 0.1] }));
   groups.wallsExt.add(box(0.25, 1.4, 0.25, gmat, { pos: [W - 0.2, 0.7, 0.1] }));
 
-  /* ===== Phase 2 backyard: room band (kamar/shower/laundry/gudang) + open garden ===== */
+  /* ===== Phase 2 backyard: left column (kamar/shower/gudang) + laundry + open Taman ===== */
   if (ph2) {
-    const rB = 13.6, wetB = 12.5, bedR = 2.6, shR = 3.6, h = YARD_H;
+    const bedR = 2.6, kmrB = 13.4, shB = 14.4, lndR = 3.6, wetB = 12.5, gudB = 15.2, h = YARD_H;
     const door = (from, to) => ({ from, to, sill: 0, head: 2.05, kind: 'door' });
-    wall(groups.structure, 'z', bedR, gfBack, rB, 0, h, [door(gfBack + 0.3, gfBack + 0.95)], intMat); // kamar | shower+gudang (door kamar→shower)
-    wall(groups.structure, 'z', shR, gfBack, wetB, 0, h, [], intMat);                  // shower | laundry (solid)
-    wall(groups.structure, 'x', wetB, bedR, X1, 0, h, [door(3.9, 4.6)], intMat);       // shower+laundry | gudang (door laundry→gudang)
-    wall(groups.structure, 'x', rB, X0, X1, 0, h, [door(1.9, 2.45), door(3.9, 4.6)], intMat); // rooms | garden (kamar→garden, gudang→garden)
+    // left column internal walls (stacked front→back: kamar, shower, gudang)
+    wall(groups.structure, 'x', kmrB, X0, bedR, 0, h, [door(0.45, 1.05)], intMat);  // kamar | shower (ensuite door)
+    wall(groups.structure, 'x', shB, X0, bedR, 0, h, [], intMat);                   // shower | gudang (solid)
+    // column divider: left rooms | open Taman, with doors kamar→taman and gudang→taman
+    wall(groups.structure, 'z', bedR, gfBack, gudB, 0, h, [door(11.4, 12.0), door(14.6, 15.1)], intMat);
+    // laundry box (right-front): door to the Taman strip, solid at the back
+    wall(groups.structure, 'z', lndR, gfBack, wetB, 0, h, [door(11.4, 12.0)], intMat); // laundry | taman strip
+    wall(groups.structure, 'x', wetB, lndR, X1, 0, h, [], intMat);                     // laundry | taman back (solid)
     const rmat = mat(0xd6d2c8, { rough: 0.9 });
-    slab(groups.roof, X0, X1, gfBack, rB, h + SLAB, rmat);  // flat roof over the room band; garden left open
+    slab(groups.roof, X0, bedR, gfBack, gudB, h + SLAB, rmat);   // roof over the left column
+    slab(groups.roof, lndR, X1, gfBack, wetB, h + SLAB, rmat);   // roof over the laundry; Taman open
   }
 
   /* ===== carport columns + roof parapet ===== */
