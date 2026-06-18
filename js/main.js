@@ -59,10 +59,12 @@ const params = { ...DEFAULTS };
 let model = null;
 const VERSIONS = [
   { id: 'default', name: 'Default' },
-  { id: 'gym', name: 'Gym & Office' },
-  { id: 'newborn', name: 'New Born Baby' },
+  { id: 'gym', name: 'Phase 1' },
+  { id: 'phase2', name: 'Phase 2' },
 ];
+// 'newborn' is archived: kept in code (furnish branch) but hidden from the selector.
 let version = 'default';
+const gymLike = v => v === 'gym' || v === 'newborn' || v === 'phase2';   // versions with the 2F gym/office
 const $ = id => document.getElementById(id);
 const C = (rect) => [(rect.x0 + rect.x1) / 2, (rect.z0 + rect.z1) / 2];
 
@@ -117,17 +119,41 @@ function furnish(L, floor0, floor1, labels, lights) {
   put(floor0, F.car(0x5f6b78), L.W - 1.05, Math.min(L.zCar - 0.25, 2.3));   // parked clear of the relocated door
   put(floor0, F.plant(1.7), 0.45, L.zCar - 0.8);
 
-  // backyard — laundry corner (washer + jemuran under a canopy) by the service door, lawn + camping set
-  put(floor0, F.canopy(2.5, 2.2, 2.2), 1.3, L.zEnc + 1.15, 0);
-  put(floor0, F.washer(), 0.7, L.zEnc + 0.5, 0);
-  put(floor0, F.jemuran(2.0), 1.55, L.zEnc + 1.65, 0);
-  put(floor0, F.campTable(), 3.4, L.zEnc + 3.6, 0);
-  put(floor0, F.campChair(0x3f6f57), 3.4, L.zEnc + 2.75, 0);
-  put(floor0, F.campChair(0xb1573a), 3.4, L.zEnc + 4.45, Math.PI);
-  put(floor0, F.campChair(0x4a6075), 2.5, L.zEnc + 3.6, Math.PI / 2);
-  put(floor0, F.campChair(0xc9a24a), 4.3, L.zEnc + 3.6, -Math.PI / 2);
-  put(floor0, F.plant(1.8), 0.6, L.zBL - 0.9);
-  put(floor0, F.plant(1.4), L.W - 0.6, L.zBR - 0.9);
+  // backyard — open lawn with a laundry/camping setup (default/Phase 1) OR the Phase 2 annex
+  if (version === 'phase2') {
+    const zb = 12.5;
+    // BEDROOM (back, most private): king bed against the back wall + a small library
+    put(floor0, F.bed(1.8, 2.0, PAL.fabricSand), 2.5, 14.0, Math.PI);                 // king, headboard to back wall
+    put(floor0, F.nightstand(), 1.3, 14.55, 0);
+    put(floor0, F.nightstand(), 3.7, 14.55, 0);
+    put(floor0, F.bookshelf(1.4, 1.8), 0.28, 13.5, Math.PI / 2);                       // library against the left wall
+    put(floor0, F.plant(1.3), L.W - 0.45, zb + 0.55);
+    // SHOWER room (enclosure tucked into the back-right corner, glass toward the door)
+    put(floor0, F.shower(1.0, 0.95), 3.1, 12.0, Math.PI);
+    // LAUNDRY room (washer + sink at the back, clear of the door from the gudang)
+    put(floor0, F.washer(), 4.6, 12.0, Math.PI / 2);
+    put(floor0, F.basin(), 3.85, 12.0, -Math.PI / 2);
+    // GUDANG / warehouse: shelving + crates
+    put(floor0, F.bookshelf(1.4, 1.7), 4.6, 10.1, -Math.PI / 2);
+    put(floor0, F.box(0.62, 0.6, 0.62, PAL.woodMid), 2.7, 9.85, 0, 0.3);
+    put(floor0, F.box(0.52, 0.5, 0.52, PAL.woodMid), 2.7, 10.5, 0.3, 0.25);
+    put(floor0, F.box(0.5, 0.45, 0.5, PAL.woodLight), 3.35, 9.85, -0.2, 0.225);
+    // COURTYARD (open to sky): jemuran + greenery for air + drying
+    put(floor0, F.jemuran(1.8), 1.05, 11.1, 0);
+    put(floor0, F.plant(1.5), 0.5, 9.95);
+    put(floor0, F.plant(1.1), 1.7, 9.85);
+  } else {
+    put(floor0, F.canopy(2.5, 2.2, 2.2), 1.3, L.zEnc + 1.15, 0);
+    put(floor0, F.washer(), 0.7, L.zEnc + 0.5, 0);
+    put(floor0, F.jemuran(2.0), 1.55, L.zEnc + 1.65, 0);
+    put(floor0, F.campTable(), 3.4, L.zEnc + 3.6, 0);
+    put(floor0, F.campChair(0x3f6f57), 3.4, L.zEnc + 2.75, 0);
+    put(floor0, F.campChair(0xb1573a), 3.4, L.zEnc + 4.45, Math.PI);
+    put(floor0, F.campChair(0x4a6075), 2.5, L.zEnc + 3.6, Math.PI / 2);
+    put(floor0, F.campChair(0xc9a24a), 4.3, L.zEnc + 3.6, -Math.PI / 2);
+    put(floor0, F.plant(1.8), 0.6, L.zBL - 0.9);
+    put(floor0, F.plant(1.4), L.W - 0.6, L.zBR - 0.9);
+  }
 
   /* --- LANTAI 2 --- */
   const [mx, mz] = C(R.master), [b2x, b2z] = C(R.bed2), [b3x, b3z] = C(R.bed3), [hx, hz] = C(R.hall);
@@ -144,7 +170,7 @@ function furnish(L, floor0, floor1, labels, lights) {
   // KM/WC 2
   put(floor1, F.toilet(), R.wc2.x0 + 0.32, R.wc2.z1 - 0.5, Math.PI / 2, FH);
   put(floor1, F.basin(), R.wc2.x1 - 0.32, R.wc2.z1 - 0.55, -Math.PI / 2, FH);
-  if (version === 'gym' || version === 'newborn') {
+  if (gymLike(version)) {
     // KAMAR TIDUR 2 → home gym + work corner
     put(floor1, F.desk(), R.bed2.x0 + 0.4, R.bed2.z1 - 0.7, Math.PI / 2, FH);          // work corner (back-left)
     put(floor1, F.officeChair(), R.bed2.x0 + 1.05, R.bed2.z1 - 0.7, -Math.PI / 2, FH);
@@ -158,7 +184,7 @@ function furnish(L, floor0, floor1, labels, lights) {
     put(floor1, F.wardrobe(1.0, 1.7), R.bed3.x0 + 0.32, R.bed3.z0 + 1.0, Math.PI / 2, FH);
     put(floor1, F.rug(1.4, 1.3, PAL.fabricSage), R.bed3.x0 + 1.05, R.bed3.z0 + 1.5, 0, FH);
     put(floor1, F.plant(1.0), R.bed3.x1 - 0.35, R.bed3.z0 + 0.45, 0, FH);
-    if (version === 'gym') put(floor1, F.crib(), R.bed3.x1 - 0.55, R.bed3.z1 - 0.9, 0, FH);
+    if (version === 'gym' || version === 'phase2') put(floor1, F.crib(), R.bed3.x1 - 0.55, R.bed3.z1 - 0.9, 0, FH);
   } else {
     // default — two bedrooms
     put(floor1, F.bed(1.4, 2.0, PAL.fabricBlue), R.bed2.x0 + 1.0, R.bed2.z0 + 1.25, Math.PI / 2, FH);
@@ -179,14 +205,18 @@ function furnish(L, floor0, floor1, labels, lights) {
   lampAt(floor1, (R.wc1.x0 + R.wc1.x1) / 2, FH + 2.4, (R.wc1.z0 + R.wc1.z1) / 2, 0xcfe8ff);
 
   /* labels */
-  const gymVer = version === 'gym' || version === 'newborn';
+  const gymVer = gymLike(version);
   const b2Label = gymVer ? 'Gym & Kerja' : 'Kamar Tidur 2';
   const b3Label = gymVer ? 'Kamar Bayi' : 'Kamar Tidur 3';
   const diningLabel = version === 'newborn' ? 'Kamar Ibu & Bayi' : 'Ruang Makan';
+  const backyardLab = version === 'phase2'
+    ? [['Kamar', 2.5, 14.0, 1.6], ['Gudang', 3.6, 10.0, 1.6], ['Shower', 2.9, 11.7, 1.55],
+       ['Laundry', 4.3, 11.7, 1.55], ['Taman', 1.1, 10.9, 1.6]]
+    : [['Backyard', L.W / 2, (L.zEnc + L.zBL) / 2, 1.6]];
   const lab = [
     ['Carport', L.W / 2, L.zCar - 1.6, 1.5], ['Ruang Tamu', lx, lz, 1.6], [diningLabel, dx, dz, 1.6],
     ['Dapur', kx, kz, 1.6], ['Toilet', (R.toilet.x0 + R.toilet.x1) / 2, (R.toilet.z0 + R.toilet.z1) / 2, 1.55],
-    ['Backyard', L.W / 2, (L.zEnc + L.zBL) / 2, 1.6],
+    ...backyardLab,
     ['Kamar Tidur 1', mx, mz, 4.7], ['KM/WC 1', (R.wc1.x0 + R.wc1.x1) / 2, (R.wc1.z0 + R.wc1.z1) / 2, 4.6],
     ['KM/WC 2', (R.wc2.x0 + R.wc2.x1) / 2, (R.wc2.z0 + R.wc2.z1) / 2, 4.6], ['Hall', hx, hz, 4.6],
     [b2Label, b2x, b2z, 4.7], [b3Label, b3x, b3z, 4.7],
@@ -202,7 +232,7 @@ function rebuild() {
     scene.remove(model.labels); disposeGroup(model.labels);
   }
   const L = computeLayout(params);
-  const { groups } = buildHouse(tex, L);
+  const { groups } = buildHouse(tex, L, version);
   const house = new THREE.Group(); Object.values(groups).forEach(g => house.add(g)); content.add(house);
   const floor0 = new THREE.Group(), floor1 = new THREE.Group();
   [floor0, floor1].forEach(g => { g.position.set(-L.center.cx, 0, -L.center.cz); content.add(g); });
@@ -223,6 +253,8 @@ function updateLegend() {
   let s;
   if (version === 'newborn')
     s = 'Lantai 1: carport · ruang tamu (kasur sofa) · kamar ibu &amp; bayi · dapur · toilet · backyard &nbsp;|&nbsp; Lantai 2: kamar utama · gym &amp; kerja · 2 KM/WC';
+  else if (version === 'phase2')
+    s = 'Lantai 1: carport · ruang tamu · ruang makan · dapur · toilet &nbsp;|&nbsp; Backyard (renovasi): kamar + perpustakaan · gudang · shower · laundry · taman (jemuran) &nbsp;|&nbsp; Lantai 2: kamar utama · gym &amp; kerja · kamar bayi · 2 KM/WC';
   else if (version === 'gym')
     s = 'Lantai 1: carport · ruang tamu · ruang makan · dapur · toilet · backyard &nbsp;|&nbsp; Lantai 2: kamar utama · gym &amp; kerja · kamar bayi · 2 KM/WC';
   else

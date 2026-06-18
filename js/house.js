@@ -114,7 +114,7 @@ function ceiling(group, x0, x1, z0, z1, y) {
   group.add(m);
 }
 
-export function buildHouse(textures = {}, L) {
+export function buildHouse(textures = {}, L, version = 'default') {
   L = L || computeLayout();
   const TEX = textures;
   const { W, zCar, zEnc, zF2, zBL, zBR, splitX, FH, SV, f2Back } = L;
@@ -133,9 +133,19 @@ export function buildHouse(textures = {}, L) {
 
   /* slabs */
   slab(groups.structure, X0, X1, 0, zEnc, 0.0, mat(0xb6b3ab, { rough: 0.9 }));
-  // backyard: lawn for the open space + a small paved utility pad by the service door
-  finishFloor(groups.grounds, X0, X1, zEnc, zBL, 0.0, TEX.grass);
-  finishFloor(groups.grounds, 0.15, 2.6, zEnc + 0.1, zEnc + 2.2, 0.05, TEX.paving);
+  // backyard: open lawn + paved utility pad (default/Phase 1) OR a renovated annex (Phase 2)
+  if (version === 'phase2') {
+    const zb = 12.5;                                                           // bedroom front line
+    finishFloor(groups.grounds, X0, 2.2, zEnc, zb, 0.0, TEX.paving);           // courtyard (open: air + jemuran)
+    finishFloor(groups.grounds, 2.2, X1, zEnc, 10.9, 0.0, TEX.tile);           // gudang / warehouse
+    finishFloor(groups.grounds, 2.2, 3.6, 10.9, zb, 0.0, TEX.tileBath);        // shower
+    finishFloor(groups.grounds, 3.6, X1, 10.9, zb, 0.0, TEX.tile);            // laundry
+    finishFloor(groups.grounds, X0, X1, zb, zBR, 0.0, TEX.wood);              // bedroom
+    finishFloor(groups.grounds, X0, 2.4, zBR, zBL, 0.0, TEX.wood);            // bedroom, deeper left corner
+  } else {
+    finishFloor(groups.grounds, X0, X1, zEnc, zBL, 0.0, TEX.grass);
+    finishFloor(groups.grounds, 0.15, 2.6, zEnc + 0.1, zEnc + 2.2, 0.05, TEX.paving);
+  }
   const f2m = mat(0xcaa46f, { rough: 0.85 });
   slab(groups.structure, X0, SV.x0, zF2, f2Back, FH, f2m);
   slab(groups.structure, SV.x1, X1, zF2, f2Back, FH, f2m);
@@ -236,6 +246,19 @@ export function buildHouse(textures = {}, L) {
   back.rotation.y = -Math.atan2(dz, dx); groups.wallsExt.add(back);
   groups.wallsExt.add(box(0.25, 1.4, 0.25, gmat, { pos: [0.2, 0.7, 0.1] }));
   groups.wallsExt.add(box(0.25, 1.4, 0.25, gmat, { pos: [W - 0.2, 0.7, 0.1] }));
+
+  /* ===== Phase 2 backyard annex: partitions + flat roofs (courtyard left open) ===== */
+  if (version === 'phase2') {
+    const zb = 12.5, h = YARD_H;
+    const door = (from, to) => ({ from, to, sill: 0, head: 2.05, kind: 'door' });
+    wall(groups.structure, 'z', 2.2, zEnc, zb, 0, h, [door(zEnc + 0.4, zEnc + 1.0), door(11.35, 12.0)], intMat); // courtyard | gudang + shower
+    wall(groups.structure, 'x', 10.9, 2.2, X1, 0, h, [door(4.0, 4.6)], intMat);   // gudang | shower+laundry (door → laundry)
+    wall(groups.structure, 'z', 3.6, 10.9, zb, 0, h, [], intMat);                 // shower | laundry
+    wall(groups.structure, 'x', zb, X0, X1, 0, h, [door(0.8, 1.5)], intMat);      // bedroom front wall (door from courtyard)
+    const rmat = mat(0xd6d2c8, { rough: 0.9 });
+    slab(groups.roof, 2.2, X1, zEnc, zb, h + SLAB, rmat);   // roof over gudang + shower + laundry
+    slab(groups.roof, X0, X1, zb, zBL, h + SLAB, rmat);     // roof over bedroom
+  }
 
   /* ===== carport columns + roof parapet ===== */
   [[0.2, zF2], [W - 0.2, zF2]].forEach(([x, z]) =>

@@ -19,8 +19,9 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         super().end_headers()
 
 
-class Server(socketserver.TCPServer):
+class Server(socketserver.ThreadingTCPServer):
     allow_reuse_address = True
+    daemon_threads = True
 
 
 with Server(("127.0.0.1", PORT), Handler) as httpd:
