@@ -94,7 +94,7 @@ function furnish(L, floor0, floor1, labels, lights) {
   put(floor0, F.rug(2.2, 1.8, PAL.fabricSand), 1.55, lz + 0.2);
   put(floor0, F.tvWall(1.4), R.living.x0 + 0.16, lz + 0.1, Math.PI / 2);             // centred on the left wall, faces +x
   put(floor0, F.sofa(1.5, PAL.fabricBlue), R.living.x1 - 1.0, lz + 0.3, -Math.PI / 2);  // long arm, faces -x toward TV
-  put(floor0, F.sofa(1.4, PAL.fabricBlue), 1.35, R.living.z1 - 0.5, Math.PI);           // return arm, faces -z (living/dining edge)
+  put(floor0, F.sofa(1.15, PAL.fabricBlue), 1.28, R.living.z1 - 0.5, Math.PI);          // smaller return arm — meets the long arm without overlapping it
   put(floor0, F.plant(1.5), R.living.x1 - 0.32, R.living.z1 - 0.4);                     // back corner beside the sofa, clear of the TV
   // dining — round table (default); in "New Born Baby" the table is removed and the space
   // becomes a temporary sleeping area for mother + baby (husband uses the sofa as a sofa bed)
