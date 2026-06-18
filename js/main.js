@@ -87,13 +87,15 @@ function furnish(L, floor0, floor1, labels, lights) {
   const lampAt = (parent, x, y, z, color = 0xffe1b0, dist = 6) => { const p = new THREE.PointLight(color, 0, dist, 2); p.position.set(x, y, z); parent.add(p); lights.push(p); };
 
   /* --- LANTAI 1 --- */
-  // living — TV on the solid left wall; sofa pulled toward it (no coffee table) so the
-  // entry door and the powder-room door stay clear to walk through
+  // living — L-shaped sectional facing the TV: a long arm faces the TV (on the solid left
+  // wall) and a short return arm runs along the living/dining edge; TV centred on the wall.
+  // Both arms clear the entry door (front) and the powder-room door (right) to walk through.
   let [lx, lz] = C(R.living);
-  put(floor0, F.rug(Math.min(2.4, R.living.x1 - R.living.x0 - 0.5), 1.7, PAL.fabricSand), 1.4, lz);
-  put(floor0, F.tvWall(1.4), R.living.x0 + 0.16, lz, Math.PI / 2);                   // faces +x
-  put(floor0, F.sofa(1.6, PAL.fabricBlue), 1.95, lz, -Math.PI / 2);                  // faces -x toward TV, near it
-  put(floor0, F.plant(1.5), R.living.x1 - 0.4, R.living.z1 - 0.4);
+  put(floor0, F.rug(2.2, 1.8, PAL.fabricSand), 1.55, lz + 0.2);
+  put(floor0, F.tvWall(1.4), R.living.x0 + 0.16, lz + 0.1, Math.PI / 2);             // centred on the left wall, faces +x
+  put(floor0, F.sofa(1.5, PAL.fabricBlue), R.living.x1 - 1.0, lz + 0.3, -Math.PI / 2);  // long arm, faces -x toward TV
+  put(floor0, F.sofa(1.4, PAL.fabricBlue), 1.35, R.living.z1 - 0.5, Math.PI);           // return arm, faces -z (living/dining edge)
+  put(floor0, F.plant(1.5), R.living.x1 - 0.32, R.living.z1 - 0.4);                     // back corner beside the sofa, clear of the TV
   // dining — round table (default); in "New Born Baby" the table is removed and the space
   // becomes a temporary sleeping area for mother + baby (husband uses the sofa as a sofa bed)
   let [dx, dz] = C(R.dining);
