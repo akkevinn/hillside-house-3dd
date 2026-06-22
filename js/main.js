@@ -51,6 +51,7 @@ const tex = {
   wood: TX.woodFloor(), tile: TX.tile({ color: '#e9e7e1', grout: '#c2bfb7' }),
   tileBath: TX.tile({ color: '#dfe3e4', grout: '#a9adad' }), wall: TX.wall(),
   grass: TX.grass(), paving: TX.paving(),
+  cement: TX.concrete({ color: '#c4c2bb' }), pebbles: TX.pebbles(),
 };
 tex.wall.repeat.set(3, 3);
 
@@ -152,16 +153,25 @@ function furnish(L, floor0, floor1, labels, lights) {
     put(floor0, F.plant(1.6), 2.9, 13.1);
     put(floor0, F.plant(1.3), L.W - 0.4, 13.9);
   } else {
+    // dry tropical garden on a cemented yard (Default / Phase 1): keep the service corner
+    // (canopy + washer + jemuran) and the santai set; add a feature tree, pots + stepping stones
     put(floor0, F.canopy(2.5, 2.2, 2.2), 1.3, L.zEnc + 1.15, 0);
     put(floor0, F.washer(), 0.7, L.zEnc + 0.5, 0);
     put(floor0, F.jemuran(2.0), 1.55, L.zEnc + 1.65, 0);
-    put(floor0, F.campTable(), 3.4, L.zEnc + 3.6, 0);
-    put(floor0, F.campChair(0x3f6f57), 3.4, L.zEnc + 2.75, 0);
-    put(floor0, F.campChair(0xb1573a), 3.4, L.zEnc + 4.45, Math.PI);
-    put(floor0, F.campChair(0x4a6075), 2.5, L.zEnc + 3.6, Math.PI / 2);
-    put(floor0, F.campChair(0xc9a24a), 4.3, L.zEnc + 3.6, -Math.PI / 2);
-    put(floor0, F.plant(1.8), 0.6, L.zBL - 0.9);
-    put(floor0, F.plant(1.4), L.W - 0.6, L.zBR - 0.9);
+    // santai — table + chairs, shifted to the central cement, clear of the side beds
+    put(floor0, F.campTable(), 2.9, L.zEnc + 3.6, 0);
+    put(floor0, F.campChair(0x3f6f57), 2.9, L.zEnc + 2.75, 0);
+    put(floor0, F.campChair(0xb1573a), 2.9, L.zEnc + 4.45, Math.PI);
+    put(floor0, F.campChair(0x4a6075), 2.0, L.zEnc + 3.6, Math.PI / 2);
+    put(floor0, F.campChair(0xc9a24a), 3.8, L.zEnc + 3.6, -Math.PI / 2);
+    // stepping stones across the cement toward the back-left feature tree
+    for (let i = 0; i < 4; i++) put(floor0, F.box(0.42, 0.06, 0.42, 0x9a948a), 1.35, L.zEnc + 2.3 + i * 0.85, 0, 0.03);
+    // greenery in the pebble beds: a tall feature tree (back-left) + plants both sides
+    put(floor0, F.plant(2.4), 0.5, L.zBL - 0.7);
+    put(floor0, F.plant(1.3), 0.5, L.zEnc + 3.4);
+    put(floor0, F.plant(1.5), L.W - 0.5, L.zBR - 0.7);
+    put(floor0, F.plant(1.1), L.W - 0.5, L.zEnc + 3.4);
+    put(floor0, F.plant(0.9), L.W - 0.55, L.zEnc + 0.7);   // potted accent by the entry
   }
 
   /* --- LANTAI 2 --- */

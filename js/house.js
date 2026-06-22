@@ -150,8 +150,10 @@ export function buildHouse(textures = {}, L, version = 'default') {
     finishFloor(groups.grounds, bedR, X1, wetB + 1.0, zBR, 0.0, TEX.grass);    // garden lawn to the back
     finishFloor(groups.grounds, bedR, 3.8, zBR, zBL, 0.0, TEX.grass);          // garden, deeper-left
   } else {
-    finishFloor(groups.grounds, X0, X1, zEnc, zBL, 0.0, TEX.grass);
-    finishFloor(groups.grounds, 0.15, 2.6, zEnc + 0.1, zEnc + 2.2, 0.05, TEX.paving);
+    // dry tropical garden: cemented yard with pebble planting beds along the two side walls
+    finishFloor(groups.grounds, X0, X1, zEnc, zBL, 0.0, TEX.cement);              // cement base
+    finishFloor(groups.grounds, X0, 0.9, zEnc + 2.5, zBL, 0.0, TEX.pebbles);      // left planting bed
+    finishFloor(groups.grounds, X1 - 0.9, X1, zEnc + 2.5, zBR, 0.0, TEX.pebbles); // right planting bed
   }
   const f2m = mat(0xcaa46f, { rough: 0.85 });
   slab(groups.structure, X0, SV.x0, zF2, f2Back, FH, f2m);

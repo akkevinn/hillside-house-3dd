@@ -118,6 +118,23 @@ export function paving({ repeat = [1, 1] } = {}) {
   return tile({ repeat, color: '#b9b6ae', grout: '#8d8a83', n: 2 });
 }
 
+/* ------------------------------------------------ pebbles / gravel (dry garden) */
+export function pebbles({ repeat = [1, 1] } = {}) {
+  const c = canvas(256), g = c.getContext('2d');
+  const r = rng(17);
+  g.fillStyle = '#86806f'; g.fillRect(0, 0, c.width, c.height);   // dark base = gaps between stones
+  const cols = ['#bdb6a4', '#a89f8c', '#cfc8b6', '#9a9180', '#c4baa4', '#8f8674', '#d6cfbd'];
+  for (let i = 0; i < 850; i++) {
+    const x = r() * c.width, y = r() * c.height, rad = 4 + r() * 8;
+    g.fillStyle = cols[(r() * cols.length) | 0];
+    g.beginPath(); g.ellipse(x, y, rad, rad * (0.65 + r() * 0.35), r() * 6.28, 0, 7); g.fill();
+    g.fillStyle = 'rgba(255,255,255,0.10)';                       // tiny highlight per stone
+    g.beginPath(); g.ellipse(x - rad * 0.25, y - rad * 0.25, rad * 0.4, rad * 0.3, 0, 0, 7); g.fill();
+  }
+  noise(g, c.width, c.height, 8, 23);
+  return finish(c, { repeat });
+}
+
 /* ------------------------------------------------ rug weave */
 export function fabric({ repeat = [1, 1], color = '#4a6075' } = {}) {
   const c = canvas(128), g = c.getContext('2d');
