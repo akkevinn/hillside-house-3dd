@@ -259,7 +259,10 @@ export function buildHouse(textures = {}, L, version = 'default') {
   wall(groups.wallsExt, 'z', X1, zF2, f2Back, y2, FH, [], extMat);
   // F2 partitions — a central landing (where the stair arrives) with doors to
   // the master bedroom, KM/WC 2, bedroom 2 and bedroom 3. KM/WC 1 is the master ensuite.
-  const mb = L.rooms.master, w2 = L.rooms.wc2, b3 = L.rooms.bed3, mZ = mb.z1, bZ = L.rooms.bed2.z0;
+  // bZ = the landing's rear edge (= bedZ0). Use bed3.z0, which equals bedZ0 in every version
+  // (bed2.z0 differs in Phase 3, where bed2 is the rear bedroom — using it ran the KM/WC 2
+  // wall back through the child bedroom).
+  const mb = L.rooms.master, w2 = L.rooms.wc2, b3 = L.rooms.bed3, mZ = mb.z1, bZ = L.rooms.bed3.z0;
   // master ↔ ensuite (KM/WC 1)
   wall(groups.structure, 'z', mb.x1, zF2, mZ, y2, FH, [
     { from: zF2 + 0.7, to: zF2 + 1.3, sill: 0, head: 2.05, kind: 'door' },
