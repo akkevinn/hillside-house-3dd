@@ -14,7 +14,7 @@ export const DEFAULTS = {
 };
 export const CONST = { T: 0.13, SLAB: 0.22, YARD_H: 2.6 };
 
-export function computeLayout(p = {}) {
+export function computeLayout(p = {}, version = 'default') {
   const P = { ...DEFAULTS, ...p };
   const W = P.W;
   const zCar = P.carport;
@@ -24,7 +24,10 @@ export function computeLayout(p = {}) {
   const zBR = zEnc + P.backyardR;
   const splitX = W * 0.668;
   const FH = P.floorH;
-  const f2Back = zEnc + 0.8;            // Lantai 2 rear sits 80 cm back of the GF rear
+  const ph3 = version === 'phase3';
+  // Phase 3 runs Lantai 2 back to the rear wall (straight, to the shorter right rear);
+  // every other version keeps the short L2 that sits 80 cm back of the GF rear.
+  const f2Back = ph3 ? zBR : zEnc + 0.8;
   // Lantai-2 depth program from the plan: master 3.23 m → 0.92 m landing → bedrooms (rest).
   const masterZ1 = zF2 + 3.23;
   const HALL = 0.92;                    // connecting landing depth = stair landing width
@@ -34,22 +37,34 @@ export function computeLayout(p = {}) {
   const scx = splitX + (W - splitX) / 2;
   const scz = (masterZ1 + bedZ0) / 2;
   const SV = { x0: scx - sr1 - 0.05, x1: scx + sr1 + 0.05, z0: masterZ1, z1: bedZ0 };
+  const rooms = {
+    living:  { x0: 0, x1: splitX, z0: zCar, z1: zCar + P.enclosed * 0.51 },
+    dining:  { x0: 0, x1: splitX, z0: zCar + P.enclosed * 0.51, z1: zEnc },
+    toilet:  { x0: splitX, x1: W, z0: zCar, z1: zCar + 1.1 },
+    kitchen: { x0: splitX, x1: W, z0: SV.z1, z1: zEnc },
+    master:  { x0: 0, x1: W * 0.8, z0: zF2, z1: masterZ1 },
+    wc1:     { x0: W * 0.8, x1: W, z0: zF2, z1: masterZ1 },     // ensuite, full master depth
+    wc2:     { x0: 0, x1: 1.5, z0: masterZ1, z1: bedZ0 },
+    hall:    { x0: 1.5, x1: W, z0: masterZ1, z1: bedZ0 },        // landing — stair arrives here
+  };
+  if (ph3) {
+    // full second storey: open play hub → equal child bedroom + gym/work → walk-in
+    // wardrobe (left) and a glass-floor room over the Taman (right)
+    const playZ1 = bedZ0 + 2.8, roomZ1 = bedZ0 + 5.8;
+    rooms.play     = { x0: 0,       x1: W,     z0: bedZ0,   z1: playZ1 };
+    rooms.bed3     = { x0: 0,       x1: W * 0.5, z0: playZ1, z1: roomZ1 };   // kamar bayi (left)
+    rooms.bed2     = { x0: W * 0.5, x1: W,     z0: playZ1,  z1: roomZ1 };    // gym & kerja (right)
+    rooms.wardrobe = { x0: 0,       x1: W * 0.5, z0: roomZ1, z1: f2Back };   // walk-in (over gudang)
+    rooms.glass    = { x0: W * 0.5, x1: W,     z0: roomZ1,  z1: f2Back };    // glass floor over Taman
+  } else {
+    rooms.bed2 = { x0: 0, x1: W * 0.628, z0: bedZ0, z1: f2Back };
+    rooms.bed3 = { x0: W * 0.628, x1: W, z0: bedZ0, z1: f2Back };
+  }
   return {
     P, W, zCar, zEnc, zF2, zBL, zBR, splitX, FH, SV, f2Back,
     spiral: { x: scx, z: scz, r1: sr1 },
     center: { cx: W / 2, cz: zBL / 2 },
-    rooms: {
-      living:  { x0: 0, x1: splitX, z0: zCar, z1: zCar + P.enclosed * 0.51 },
-      dining:  { x0: 0, x1: splitX, z0: zCar + P.enclosed * 0.51, z1: zEnc },
-      toilet:  { x0: splitX, x1: W, z0: zCar, z1: zCar + 1.1 },
-      kitchen: { x0: splitX, x1: W, z0: SV.z1, z1: zEnc },
-      master:  { x0: 0, x1: W * 0.8, z0: zF2, z1: masterZ1 },
-      wc1:     { x0: W * 0.8, x1: W, z0: zF2, z1: masterZ1 },     // ensuite, full master depth
-      wc2:     { x0: 0, x1: 1.5, z0: masterZ1, z1: bedZ0 },
-      hall:    { x0: 1.5, x1: W, z0: masterZ1, z1: bedZ0 },        // landing — stair arrives here
-      bed2:    { x0: 0, x1: W * 0.628, z0: bedZ0, z1: f2Back },
-      bed3:    { x0: W * 0.628, x1: W, z0: bedZ0, z1: f2Back },
-    },
+    rooms,
   };
 }
 
@@ -121,7 +136,8 @@ export function buildHouse(textures = {}, L, version = 'default') {
   const X0 = 0, X1 = W;
   // Phase 2 breaks the rear wall and pushes the dining/kitchen ~1.5 m into the
   // backyard (open-plan). gfBack = the conditioned ground floor's new rear line.
-  const ph2 = version === 'phase2';
+  const ph3 = version === 'phase3';
+  const ph2 = version === 'phase2' || ph3;   // Phase 3 reuses the Phase 2 ground floor (annex)
   const gfBack = ph2 ? zEnc + 1.5 : zEnc;
   const groups = { structure: new THREE.Group(), wallsExt: new THREE.Group(), roof: new THREE.Group(), grounds: new THREE.Group() };
 
@@ -156,10 +172,20 @@ export function buildHouse(textures = {}, L, version = 'default') {
     finishFloor(groups.grounds, X1 - 0.9, X1, zEnc + 2.5, zBR, 0.0, TEX.pebbles); // right planting bed
   }
   const f2m = mat(0xcaa46f, { rough: 0.85 });
-  slab(groups.structure, X0, SV.x0, zF2, f2Back, FH, f2m);
-  slab(groups.structure, SV.x1, X1, zF2, f2Back, FH, f2m);
-  slab(groups.structure, SV.x0, SV.x1, zF2, SV.z0, FH, f2m);
-  slab(groups.structure, SV.x0, SV.x1, SV.z1, f2Back, FH, f2m);
+  if (ph3) {
+    // full L2 slab to the rear, but leave the glass-floor room (over the Taman) open in the slab
+    const gr = L.rooms.glass, rz = gr.z0;
+    slab(groups.structure, X0, SV.x0, zF2, rz, FH, f2m);
+    slab(groups.structure, SV.x1, X1, zF2, rz, FH, f2m);
+    slab(groups.structure, SV.x0, SV.x1, zF2, SV.z0, FH, f2m);
+    slab(groups.structure, SV.x0, SV.x1, SV.z1, rz, FH, f2m);
+    slab(groups.structure, X0, gr.x0, rz, f2Back, FH, f2m);           // walk-in wardrobe floor (left)
+  } else {
+    slab(groups.structure, X0, SV.x0, zF2, f2Back, FH, f2m);
+    slab(groups.structure, SV.x1, X1, zF2, f2Back, FH, f2m);
+    slab(groups.structure, SV.x0, SV.x1, zF2, SV.z0, FH, f2m);
+    slab(groups.structure, SV.x0, SV.x1, SV.z1, f2Back, FH, f2m);
+  }
   slab(groups.roof, X0, X1, zF2, f2Back, 2 * FH, mat(0xd6d2c8, { rough: 0.9 }));
 
   /* finishes */
@@ -167,9 +193,20 @@ export function buildHouse(textures = {}, L, version = 'default') {
   finishFloor(groups.structure, splitX, X1, zCar, gfBack, 0, TEX.tile);
   // the extension reaches 1.5 m back; its rear 0.7 m sticks out past the L2 floor → roof it at FH
   if (ph2) slab(groups.structure, X0, X1, f2Back, gfBack, FH, mat(0xcaa46f, { rough: 0.85 }));
-  finishFloor(groups.structure, X0, SV.x0, zF2, f2Back, FH, TEX.wood);
-  finishFloor(groups.structure, SV.x1, X1, zF2, f2Back, FH, TEX.wood);
-  finishFloor(groups.structure, SV.x0, SV.x1, SV.z1, f2Back, FH, TEX.wood);
+  if (ph3) {
+    const gr = L.rooms.glass, rz = gr.z0;
+    finishFloor(groups.structure, X0, SV.x0, zF2, rz, FH, TEX.wood);
+    finishFloor(groups.structure, SV.x1, X1, zF2, rz, FH, TEX.wood);
+    finishFloor(groups.structure, SV.x0, SV.x1, SV.z1, rz, FH, TEX.wood);
+    finishFloor(groups.structure, X0, gr.x0, rz, f2Back, FH, TEX.wood);   // walk-in wardrobe
+    // glass floor over the Taman — see-through to the garden, sealed so no one can fall
+    groups.structure.add(box(gr.x1 - gr.x0 - 0.14, 0.04, gr.z1 - gr.z0 - 0.14, glassMat(),
+      { pos: [(gr.x0 + gr.x1) / 2, FH - 0.02, (gr.z0 + gr.z1) / 2], cast: false, receive: false }));
+  } else {
+    finishFloor(groups.structure, X0, SV.x0, zF2, f2Back, FH, TEX.wood);
+    finishFloor(groups.structure, SV.x1, X1, zF2, f2Back, FH, TEX.wood);
+    finishFloor(groups.structure, SV.x0, SV.x1, SV.z1, f2Back, FH, TEX.wood);
+  }
   finishFloor(groups.structure, L.rooms.wc1.x0, X1, L.rooms.wc1.z0, L.rooms.wc1.z1, FH, TEX.tileBath);
   finishFloor(groups.structure, L.rooms.wc2.x0, L.rooms.wc2.x1, L.rooms.wc2.z0, L.rooms.wc2.z1, FH, TEX.tileBath);
   finishFloor(groups.grounds, X0, X1, 0, zCar, 0, TEX.paving);
@@ -236,14 +273,28 @@ export function buildHouse(textures = {}, L, version = 'default') {
   wall(groups.structure, 'z', w2.x1, mZ, bZ, y2, FH, [
     { from: mZ + 0.45, to: mZ + 1.05, sill: 0, head: 2.05, kind: 'door' },
   ], intMat);
-  // landing rear wall (hall / wc2  ↔  bed 2 / bed 3) — doors into both bedrooms, both reached
-  // from the landing strip left of the stair void
-  wall(groups.structure, 'x', bZ, X0, X1, y2, FH, [
-    { from: 1.85, to: 2.5, sill: 0, head: 2.1, kind: 'door' },    // → bedroom 2
-    { from: 3.2, to: 3.68, sill: 0, head: 2.1, kind: 'door' },    // → bedroom 3
-  ], intMat);
-  // bedroom 2 ↔ bedroom 3 divider
-  wall(groups.structure, 'z', b3.x0, bZ, f2Back, y2, FH, [], intMat);
+  if (ph3) {
+    // Phase 3 back zone: open play hub (no wall off the landing) → equal kamar bayi + gym →
+    // walk-in wardrobe (left) and glass-floor room (right)
+    const b2 = L.rooms.bed2, gl = L.rooms.glass, pz = b2.z0, rz = gl.z0, midX = b2.x0;
+    wall(groups.structure, 'x', pz, X0, X1, y2, FH, [
+      { from: 0.9, to: 1.6, sill: 0, head: 2.1, kind: 'door' },     // play → kamar bayi
+      { from: 3.2, to: 3.9, sill: 0, head: 2.1, kind: 'door' },     // play → gym & kerja
+    ], intMat);
+    wall(groups.structure, 'z', midX, pz, rz, y2, FH, [], intMat);                                              // kamar bayi ↔ gym
+    wall(groups.structure, 'x', rz, X0, midX, y2, FH, [{ from: 0.5, to: 1.1, sill: 0, head: 2.1, kind: 'door' }], intMat); // kamar bayi → wardrobe
+    wall(groups.structure, 'x', rz, midX, X1, y2, FH, [{ from: 3.0, to: 3.6, sill: 0, head: 2.1, kind: 'door' }], intMat); // gym → glass room
+    wall(groups.structure, 'z', midX, rz, f2Back, y2, FH, [], intMat);                                          // wardrobe ↔ glass room
+  } else {
+    // landing rear wall (hall / wc2  ↔  bed 2 / bed 3) — doors into both bedrooms, both reached
+    // from the landing strip left of the stair void
+    wall(groups.structure, 'x', bZ, X0, X1, y2, FH, [
+      { from: 1.85, to: 2.5, sill: 0, head: 2.1, kind: 'door' },    // → bedroom 2
+      { from: 3.2, to: 3.68, sill: 0, head: 2.1, kind: 'door' },    // → bedroom 3
+    ], intMat);
+    // bedroom 2 ↔ bedroom 3 divider
+    wall(groups.structure, 'z', b3.x0, bZ, f2Back, y2, FH, [], intMat);
+  }
 
   /* ===== spiral stair ===== */
   // compact spiral: more sweep/steps to climb within the tight 0.92 m landing
@@ -259,17 +310,20 @@ export function buildHouse(textures = {}, L, version = 'default') {
   const gmat = mat(PAL.wallWarm, { rough: 0.95 }); if (TEX.wall) gmat.map = TEX.wall;
   wall(groups.wallsExt, 'z', X0, 0, zF2, 0, YARD_H, [], gmat);
   wall(groups.wallsExt, 'z', X1, 0, zF2, 0, YARD_H, [], gmat);
-  wall(groups.wallsExt, 'z', X0, gfBack, zBL, 0, YARD_H, [], gmat);
-  wall(groups.wallsExt, 'z', X1, gfBack, zBR, 0, YARD_H, [], gmat);
+  // Phase 3 backyard is two-storey, so its side + rear walls run full height to carry the L2
+  const ybh = ph3 ? FH : YARD_H, bwmat = ph3 ? extMat : gmat;
+  wall(groups.wallsExt, 'z', X0, gfBack, zBL, 0, ybh, [], bwmat);
+  wall(groups.wallsExt, 'z', X1, gfBack, zBR, 0, ybh, [], bwmat);
   const dx = W, dz = zBR - zBL;
-  const back = box(Math.hypot(dx, dz), YARD_H, T, gmat, { pos: [W / 2, YARD_H / 2, (zBL + zBR) / 2] });
+  const back = box(Math.hypot(dx, dz), ybh, T, bwmat, { pos: [W / 2, ybh / 2, (zBL + zBR) / 2] });
   back.rotation.y = -Math.atan2(dz, dx); groups.wallsExt.add(back);
   groups.wallsExt.add(box(0.25, 1.4, 0.25, gmat, { pos: [0.2, 0.7, 0.1] }));
   groups.wallsExt.add(box(0.25, 1.4, 0.25, gmat, { pos: [W - 0.2, 0.7, 0.1] }));
 
   /* ===== Phase 2 backyard: left column (kamar/shower/gudang) + laundry + open Taman ===== */
   if (ph2) {
-    const bedR = 2.6, kmrB = 13.4, shB = 14.4, lndR = 3.6, wetB = 12.5, gudB = 15.25, h = YARD_H;
+    const bedR = 2.6, kmrB = 13.4, shB = 14.4, lndR = 3.6, wetB = 12.5, gudB = 15.25;
+    const h = ph3 ? FH : YARD_H;   // Phase 3: full-height annex (L2 floor is its ceiling)
     const door = (from, to) => ({ from, to, sill: 0, head: 2.05, kind: 'door' });
     // left column internal walls (stacked front→back: kamar, shower, gudang)
     wall(groups.structure, 'x', kmrB, X0, bedR, 0, h, [door(0.45, 1.05)], intMat);  // kamar | shower (ensuite door)
@@ -279,9 +333,12 @@ export function buildHouse(textures = {}, L, version = 'default') {
     // laundry box (right-front): door to the Taman strip, solid at the back
     wall(groups.structure, 'z', lndR, gfBack, wetB, 0, h, [door(11.4, 12.0)], intMat); // laundry | taman strip
     wall(groups.structure, 'x', wetB, lndR, X1, 0, h, [], intMat);                     // laundry | taman back (solid)
-    const rmat = mat(0xd6d2c8, { rough: 0.9 });
-    slab(groups.roof, X0, bedR, gfBack, zBL, h + SLAB, rmat);    // roof over the left column, extended back to meet the rear wall (no gap)
-    slab(groups.roof, lndR, X1, gfBack, wetB, h + SLAB, rmat);   // roof over the laundry; Taman open
+    if (!ph3) {
+      // single-storey annex roofs (Phase 2 only — in Phase 3 the L2 floor is the ceiling)
+      const rmat = mat(0xd6d2c8, { rough: 0.9 });
+      slab(groups.roof, X0, bedR, gfBack, zBL, h + SLAB, rmat);    // roof over the left column, to the rear wall
+      slab(groups.roof, lndR, X1, gfBack, wetB, h + SLAB, rmat);   // roof over the laundry; Taman open
+    }
   }
 
   /* ===== carport columns + roof parapet ===== */

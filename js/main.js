@@ -62,6 +62,7 @@ const VERSIONS = [
   { id: 'default', name: 'Default' },
   { id: 'gym', name: 'Phase 1' },
   { id: 'phase2', name: 'Phase 2' },
+  { id: 'phase3', name: 'Phase 3' },
 ];
 // 'newborn' is archived: kept in code (furnish branch) but hidden from the selector.
 let version = 'default';
@@ -100,7 +101,7 @@ function furnish(L, floor0, floor1, labels, lights) {
   // dining — round table (default); in "New Born Baby" the table is removed and the space
   // becomes a temporary sleeping area for mother + baby (husband uses the sofa as a sofa bed)
   let [dx, dz] = C(R.dining);
-  if (version === 'phase2') {
+  if (version === 'phase2' || version === 'phase3') {
     // dining is extended ~1.5 m into the backyard (open-plan) → a bigger 6-seat table
     put(floor0, F.diningSet(6), R.dining.x0 + 1.55, R.dining.z1 + 0.15, 0);
   } else if (version === 'newborn') {
@@ -122,13 +123,13 @@ function furnish(L, floor0, floor1, labels, lights) {
   // fridge fills that gap: corner against the right wall + the stair-side wall, in line with the counter
   put(floor0, F.fridge(), R.kitchen.x1 - 0.35, R.kitchen.z0 + 0.42, -Math.PI / 2);
   // Phase 2: the kitchen now reaches into the extension → continue the counter along the right wall
-  if (version === 'phase2') put(floor0, F.kitchenLinear(1.1), R.kitchen.x1 - 0.34, R.kitchen.z1 + 0.7, Math.PI / 2);
+  if (version === 'phase2' || version === 'phase3') put(floor0, F.kitchenLinear(1.1), R.kitchen.x1 - 0.34, R.kitchen.z1 + 0.7, Math.PI / 2);
   // carport + greenery
   put(floor0, F.car(0x5f6b78), L.W - 1.05, Math.min(L.zCar - 0.25, 2.3));   // parked clear of the relocated door
   put(floor0, F.plant(1.7), 0.45, L.zCar - 0.8);
 
   // backyard — open lawn with a laundry/camping setup (default/Phase 1) OR the Phase 2 annex
-  if (version === 'phase2') {
+  if (version === 'phase2' || version === 'phase3') {
     // Renovated backyard. LEFT column: kamar → shower → gudang (very back).
     // RIGHT: laundry (kept) + an open Taman that runs to the very back.
     // KAMAR (x0–2.6, z10.9–13.4): bed headboard on the left wall, nightstand + library
@@ -189,7 +190,35 @@ function furnish(L, floor0, floor1, labels, lights) {
   // KM/WC 2
   put(floor1, F.toilet(), R.wc2.x0 + 0.32, R.wc2.z1 - 0.5, Math.PI / 2, FH);
   put(floor1, F.basin(), R.wc2.x1 - 0.32, R.wc2.z1 - 0.55, -Math.PI / 2, FH);
-  if (gymLike(version)) {
+  if (version === 'phase3') {
+    // PLAY / SHARING area (open hub): TV + game station + extra wardrobe + soft play floor
+    put(floor1, F.rug(2.6, 1.8, PAL.fabricSage), (R.play.x0 + R.play.x1) / 2, R.play.z0 + 1.45, 0, FH);
+    put(floor1, F.tvWall(1.4), R.play.x0 + 0.16, R.play.z0 + 1.3, Math.PI / 2, FH);              // TV on the left wall
+    put(floor1, F.pcTower(), R.play.x0 + 0.42, R.play.z0 + 2.25, 0, FH);                         // game station
+    put(floor1, F.sofa(1.6, PAL.fabricBlue), R.play.x0 + 1.75, R.play.z0 + 1.35, -Math.PI / 2, FH); // faces the TV
+    put(floor1, F.wardrobe(1.2, 2.0), R.play.x1 - 0.3, R.play.z1 - 0.95, -Math.PI / 2, FH);      // extra wardrobe, right wall
+    put(floor1, F.plant(1.2), R.play.x1 - 0.45, R.play.z0 + 0.5, 0, FH);
+    // KAMAR BAYI (child bedroom, left) — equal to the gym
+    put(floor1, F.bed(1.2, 2.0, PAL.fabricSand), R.bed3.x0 + 1.0, R.bed3.z0 + 1.05, Math.PI / 2, FH); // headboard on the left wall
+    put(floor1, F.nightstand(), R.bed3.x0 + 0.3, R.bed3.z0 + 1.85, 0, FH);
+    put(floor1, F.wardrobe(1.0, 2.0), R.bed3.x1 - 0.3, R.bed3.z0 + 1.1, -Math.PI / 2, FH);
+    put(floor1, F.rug(1.5, 1.2, PAL.fabricSage), R.bed3.x0 + 1.1, R.bed3.z1 - 0.95, 0, FH);
+    // GYM & KERJA (right) — equal to the child bedroom: gym kit + work corner
+    put(floor1, F.rug(2.0, 1.5, 0x33373b), R.bed2.x0 + 1.2, R.bed2.z0 + 1.3, 0, FH);
+    put(floor1, F.weightBench(), R.bed2.x0 + 1.1, R.bed2.z0 + 1.25, 0, FH);
+    put(floor1, F.dumbbellRack(), R.bed2.x0 + 0.5, R.bed2.z0 + 0.45, 0, FH);
+    put(floor1, F.cableMachine(), R.bed2.x1 - 0.35, R.bed2.z0 + 1.5, -Math.PI / 2, FH);
+    put(floor1, F.desk(), R.bed2.x0 + 0.5, R.bed2.z1 - 0.65, Math.PI / 2, FH);
+    put(floor1, F.officeChair(), R.bed2.x0 + 1.15, R.bed2.z1 - 0.65, -Math.PI / 2, FH);
+    put(floor1, F.pullUpTower(), R.bed2.x1 - 0.5, R.bed2.z1 - 0.6, Math.PI, FH);
+    // WALK-IN WARDROBE (left-back, over the gudang)
+    put(floor1, F.wardrobe(1.8, 2.1), R.wardrobe.x0 + 1.2, R.wardrobe.z1 - 0.28, Math.PI, FH);  // back wall
+    put(floor1, F.wardrobe(1.5, 2.1), R.wardrobe.x0 + 0.28, R.wardrobe.z0 + 1.2, Math.PI / 2, FH); // left wall
+    // GLASS-FLOOR ROOM (right-back, over the Taman) — light lounge so the floor reads through
+    put(floor1, F.armchair(PAL.fabricSand), R.glass.x0 + 0.8, R.glass.z0 + 0.8, Math.PI / 4, FH);
+    put(floor1, F.armchair(PAL.fabricBlue), R.glass.x1 - 0.8, R.glass.z1 - 0.85, -Math.PI * 0.75, FH);
+    put(floor1, F.plant(1.3), R.glass.x1 - 0.42, R.glass.z0 + 0.5, 0, FH);
+  } else if (gymLike(version)) {
     // KAMAR TIDUR 2 → home gym + work corner
     put(floor1, F.desk(), R.bed2.x0 + 0.4, R.bed2.z1 - 0.7, Math.PI / 2, FH);          // work corner (back-left)
     put(floor1, F.officeChair(), R.bed2.x0 + 1.05, R.bed2.z1 - 0.7, -Math.PI / 2, FH);
@@ -224,14 +253,19 @@ function furnish(L, floor0, floor1, labels, lights) {
   lampAt(floor1, (R.wc1.x0 + R.wc1.x1) / 2, FH + 2.4, (R.wc1.z0 + R.wc1.z1) / 2, 0xcfe8ff);
 
   /* labels */
-  const gymVer = gymLike(version);
+  const gymVer = gymLike(version) || version === 'phase3';
   const b2Label = gymVer ? 'Gym & Kerja' : 'Kamar Tidur 2';
   const b3Label = gymVer ? 'Kamar Bayi' : 'Kamar Tidur 3';
   const diningLabel = version === 'newborn' ? 'Kamar Ibu & Bayi' : 'Ruang Makan';
-  const backyardLab = version === 'phase2'
+  const backyardLab = (version === 'phase2' || version === 'phase3')
     ? [['Kamar', 1.0, 12.0, 1.6], ['Shower', 1.9, 13.9, 1.55], ['Gudang', 1.1, 15.0, 1.55],
        ['Laundry', 4.3, 11.5, 1.55], ['Taman', 3.6, 13.0, 1.6]]
     : [['Backyard', L.W / 2, (L.zEnc + L.zBL) / 2, 1.6]];
+  const ph3lab = version === 'phase3'
+    ? [['Sharing / Play', (R.play.x0 + R.play.x1) / 2, (R.play.z0 + R.play.z1) / 2, 4.7],
+       ['Lemari', (R.wardrobe.x0 + R.wardrobe.x1) / 2, (R.wardrobe.z0 + R.wardrobe.z1) / 2, 4.6],
+       ['Lantai Kaca', (R.glass.x0 + R.glass.x1) / 2, (R.glass.z0 + R.glass.z1) / 2, 4.6]]
+    : [];
   const lab = [
     ['Carport', L.W / 2, L.zCar - 1.6, 1.5], ['Ruang Tamu', lx, lz, 1.6], [diningLabel, dx, dz, 1.6],
     ['Dapur', kx, kz, 1.6], ['Toilet', (R.toilet.x0 + R.toilet.x1) / 2, (R.toilet.z0 + R.toilet.z1) / 2, 1.55],
@@ -239,6 +273,7 @@ function furnish(L, floor0, floor1, labels, lights) {
     ['Kamar Tidur 1', mx, mz, 4.7], ['KM/WC 1', (R.wc1.x0 + R.wc1.x1) / 2, (R.wc1.z0 + R.wc1.z1) / 2, 4.6],
     ['KM/WC 2', (R.wc2.x0 + R.wc2.x1) / 2, (R.wc2.z0 + R.wc2.z1) / 2, 4.6], ['Hall', hx, hz, 4.6],
     [b2Label, b2x, b2z, 4.7], [b3Label, b3x, b3z, 4.7],
+    ...ph3lab,
   ];
   // labels live in the un-mirrored scene → mirror only their position so the text stays readable
   lab.forEach(([t, x, z, y]) => { const s = makeLabel(t); s.position.set(L.center.cx - x, y, z - L.center.cz); labels.add(s); });
@@ -250,7 +285,7 @@ function rebuild() {
     [model.house, model.floor0, model.floor1].forEach(g => { content.remove(g); disposeGroup(g); });
     scene.remove(model.labels); disposeGroup(model.labels);
   }
-  const L = computeLayout(params);
+  const L = computeLayout(params, version);
   const { groups } = buildHouse(tex, L, version);
   const house = new THREE.Group(); Object.values(groups).forEach(g => house.add(g)); content.add(house);
   const floor0 = new THREE.Group(), floor1 = new THREE.Group();
@@ -272,6 +307,8 @@ function updateLegend() {
   let s;
   if (version === 'newborn')
     s = 'Lantai 1: carport · ruang tamu (kasur sofa) · kamar ibu &amp; bayi · dapur · toilet · backyard &nbsp;|&nbsp; Lantai 2: kamar utama · gym &amp; kerja · 2 KM/WC';
+  else if (version === 'phase3')
+    s = 'Lantai 1: carport · ruang tamu · <b>dapur &amp; ruang makan diperluas</b> · kamar · shower · gudang · laundry · taman (atap kaca) &nbsp;|&nbsp; Lantai 2 (penuh s/d belakang): kamar utama · sharing/play (TV + game) · kamar bayi · gym &amp; kerja · lemari · <b>ruang lantai kaca</b> di atas taman · 2 KM/WC';
   else if (version === 'phase2')
     s = 'Lantai 1: carport · ruang tamu · toilet · <b>dapur &amp; ruang makan diperluas</b> (open-plan, dinding belakang dibongkar) &nbsp;|&nbsp; Backyard: kamar + perpustakaan · shower · laundry · gudang · taman terbuka &nbsp;|&nbsp; Lantai 2: kamar utama · gym &amp; kerja · kamar bayi · 2 KM/WC';
   else if (version === 'gym')
