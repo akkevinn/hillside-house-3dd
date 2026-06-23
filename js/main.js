@@ -191,33 +191,32 @@ function furnish(L, floor0, floor1, labels, lights) {
   put(floor1, F.toilet(), R.wc2.x0 + 0.32, R.wc2.z1 - 0.5, Math.PI / 2, FH);
   put(floor1, F.basin(), R.wc2.x1 - 0.32, R.wc2.z1 - 0.55, -Math.PI / 2, FH);
   if (version === 'phase3') {
-    // PLAY / SHARING area (open hub): TV + game station + extra wardrobe + soft play floor
-    put(floor1, F.rug(2.6, 1.8, PAL.fabricSage), (R.play.x0 + R.play.x1) / 2, R.play.z0 + 1.45, 0, FH);
-    put(floor1, F.tvWall(1.4), R.play.x0 + 0.16, R.play.z0 + 1.3, Math.PI / 2, FH);              // TV on the left wall
-    put(floor1, F.pcTower(), R.play.x0 + 0.42, R.play.z0 + 2.25, 0, FH);                         // game station
-    put(floor1, F.sofa(1.6, PAL.fabricBlue), R.play.x0 + 1.75, R.play.z0 + 1.35, -Math.PI / 2, FH); // faces the TV
-    put(floor1, F.wardrobe(1.2, 2.0), R.play.x1 - 0.3, R.play.z1 - 0.95, -Math.PI / 2, FH);      // extra wardrobe, right wall
-    put(floor1, F.plant(1.2), R.play.x1 - 0.45, R.play.z0 + 0.5, 0, FH);
-    // KAMAR BAYI (child bedroom, left) — equal to the gym
-    put(floor1, F.bed(1.2, 2.0, PAL.fabricSand), R.bed3.x0 + 1.0, R.bed3.z0 + 1.05, Math.PI / 2, FH); // headboard on the left wall
-    put(floor1, F.nightstand(), R.bed3.x0 + 0.3, R.bed3.z0 + 1.85, 0, FH);
-    put(floor1, F.wardrobe(1.0, 2.0), R.bed3.x1 - 0.3, R.bed3.z0 + 1.1, -Math.PI / 2, FH);
-    put(floor1, F.rug(1.5, 1.2, PAL.fabricSage), R.bed3.x0 + 1.1, R.bed3.z1 - 0.95, 0, FH);
-    // GYM & KERJA (right) — equal to the child bedroom: gym kit + work corner
-    put(floor1, F.rug(2.0, 1.5, 0x33373b), R.bed2.x0 + 1.2, R.bed2.z0 + 1.3, 0, FH);
-    put(floor1, F.weightBench(), R.bed2.x0 + 1.1, R.bed2.z0 + 1.25, 0, FH);
-    put(floor1, F.dumbbellRack(), R.bed2.x0 + 0.5, R.bed2.z0 + 0.45, 0, FH);
-    put(floor1, F.cableMachine(), R.bed2.x1 - 0.35, R.bed2.z0 + 1.5, -Math.PI / 2, FH);
-    put(floor1, F.desk(), R.bed2.x0 + 0.5, R.bed2.z1 - 0.65, Math.PI / 2, FH);
-    put(floor1, F.officeChair(), R.bed2.x0 + 1.15, R.bed2.z1 - 0.65, -Math.PI / 2, FH);
-    put(floor1, F.pullUpTower(), R.bed2.x1 - 0.5, R.bed2.z1 - 0.6, Math.PI, FH);
-    // WALK-IN WARDROBE (left-back, over the gudang)
-    put(floor1, F.wardrobe(1.8, 2.1), R.wardrobe.x0 + 1.2, R.wardrobe.z1 - 0.28, Math.PI, FH);  // back wall
-    put(floor1, F.wardrobe(1.5, 2.1), R.wardrobe.x0 + 0.28, R.wardrobe.z0 + 1.2, Math.PI / 2, FH); // left wall
-    // GLASS-FLOOR ROOM (right-back, over the Taman) — light lounge so the floor reads through
-    put(floor1, F.armchair(PAL.fabricSand), R.glass.x0 + 0.8, R.glass.z0 + 0.8, Math.PI / 4, FH);
-    put(floor1, F.armchair(PAL.fabricBlue), R.glass.x1 - 0.8, R.glass.z1 - 0.85, -Math.PI * 0.75, FH);
-    put(floor1, F.plant(1.3), R.glass.x1 - 0.42, R.glass.z0 + 0.5, 0, FH);
+    // KAMAR BAYI (left-front) — bed headboard on the front wall, wardrobe clear of the side door
+    put(floor1, F.bed(1.2, 2.0, PAL.fabricSand), R.bed3.x0 + 1.0, R.bed3.z0 + 1.1, 0, FH);
+    put(floor1, F.nightstand(), R.bed3.x0 + 1.95, R.bed3.z0 + 0.4, 0, FH);
+    put(floor1, F.wardrobe(1.1, 2.0), R.bed3.x1 - 0.28, R.bed3.z1 - 0.7, -Math.PI / 2, FH);      // right wall, at the back (clear of the door)
+    put(floor1, F.rug(1.5, 1.2, PAL.fabricSage), R.bed3.x0 + 1.0, R.bed3.z0 + 1.5, 0, FH);
+    // GYM & KERJA (left-back) — equipment kept off the side door; work corner at the rear
+    put(floor1, F.rug(2.0, 1.6, 0x33373b), R.bed2.x0 + 1.1, R.bed2.z0 + 2.0, 0, FH);
+    put(floor1, F.cableMachine(), R.bed2.x0 + 0.35, R.bed2.z0 + 1.5, Math.PI / 2, FH);           // left wall
+    put(floor1, F.weightBench(), R.bed2.x0 + 1.15, R.bed2.z0 + 2.1, 0, FH);
+    put(floor1, F.dumbbellRack(), R.bed2.x0 + 0.5, R.bed2.z0 + 0.55, 0, FH);
+    put(floor1, F.desk(), R.bed2.x0 + 0.5, R.bed2.z1 - 0.6, Math.PI / 2, FH);
+    put(floor1, F.officeChair(), R.bed2.x0 + 1.15, R.bed2.z1 - 0.6, -Math.PI / 2, FH);
+    put(floor1, F.pullUpTower(), R.bed2.x1 - 0.5, R.bed2.z1 - 0.55, Math.PI, FH);
+    // OPEN SHARING / PLAY (right, full depth): TV + sofa in the middle (between the two bedroom
+    // doors), game + wardrobe up front, glass-floor lounge at the rear
+    const px = (R.play.x0 + R.play.x1) / 2;
+    put(floor1, F.tvWall(1.4), R.play.x1 - 0.16, R.play.z0 + 3.5, -Math.PI / 2, FH);             // TV on the outer wall
+    put(floor1, F.sofa(1.8, PAL.fabricBlue), R.play.x0 + 0.6, R.play.z0 + 3.5, Math.PI / 2, FH);  // faces the TV, clear of both doors
+    put(floor1, F.rug(2.2, 2.0, PAL.fabricSage), px, R.play.z0 + 3.5, 0, FH);
+    put(floor1, F.pcTower(), R.play.x1 - 0.5, R.play.z0 + 2.3, 0, FH);                           // game station
+    put(floor1, F.wardrobe(1.5, 2.0), R.play.x1 - 0.3, R.play.z0 + 0.95, -Math.PI / 2, FH);       // wardrobe in the sharing area (front corner)
+    put(floor1, F.plant(1.4), R.play.x0 + 0.5, R.play.z0 + 0.8, 0, FH);
+    // glass-floor lounge over the Taman (rear of the open play) — light armchairs so the floor reads
+    put(floor1, F.armchair(PAL.fabricSand), R.glass.x0 + 0.85, R.glass.z0 + 0.95, Math.PI / 4, FH);
+    put(floor1, F.armchair(PAL.fabricBlue), R.glass.x1 - 0.85, R.glass.z1 - 0.95, -Math.PI * 0.75, FH);
+    put(floor1, F.plant(1.3), R.glass.x1 - 0.42, R.glass.z0 + 0.55, 0, FH);
   } else if (gymLike(version)) {
     // KAMAR TIDUR 2 → home gym + work corner
     put(floor1, F.desk(), R.bed2.x0 + 0.4, R.bed2.z1 - 0.7, Math.PI / 2, FH);          // work corner (back-left)
@@ -262,8 +261,7 @@ function furnish(L, floor0, floor1, labels, lights) {
        ['Laundry', 4.3, 11.5, 1.55], ['Taman', 3.6, 13.0, 1.6]]
     : [['Backyard', L.W / 2, (L.zEnc + L.zBL) / 2, 1.6]];
   const ph3lab = version === 'phase3'
-    ? [['Sharing / Play', (R.play.x0 + R.play.x1) / 2, (R.play.z0 + R.play.z1) / 2, 4.7],
-       ['Lemari', (R.wardrobe.x0 + R.wardrobe.x1) / 2, (R.wardrobe.z0 + R.wardrobe.z1) / 2, 4.6],
+    ? [['Sharing / Play', (R.play.x0 + R.play.x1) / 2, R.play.z0 + 2.2, 4.7],
        ['Lantai Kaca', (R.glass.x0 + R.glass.x1) / 2, (R.glass.z0 + R.glass.z1) / 2, 4.6]]
     : [];
   const lab = [
@@ -308,7 +306,7 @@ function updateLegend() {
   if (version === 'newborn')
     s = 'Lantai 1: carport · ruang tamu (kasur sofa) · kamar ibu &amp; bayi · dapur · toilet · backyard &nbsp;|&nbsp; Lantai 2: kamar utama · gym &amp; kerja · 2 KM/WC';
   else if (version === 'phase3')
-    s = 'Lantai 1: carport · ruang tamu · <b>dapur &amp; ruang makan diperluas</b> · kamar · shower · gudang · laundry · taman (atap kaca) &nbsp;|&nbsp; Lantai 2 (penuh s/d belakang): kamar utama · sharing/play (TV + game) · kamar bayi · gym &amp; kerja · lemari · <b>ruang lantai kaca</b> di atas taman · 2 KM/WC';
+    s = 'Lantai 1: carport · ruang tamu · <b>dapur &amp; ruang makan diperluas</b> · kamar · shower · gudang · laundry · taman (atap kaca) &nbsp;|&nbsp; Lantai 2 (penuh s/d belakang): kamar utama · kamar bayi · gym &amp; kerja · <b>sharing/play terbuka</b> (TV + game + lemari) dengan <b>lantai kaca</b> di atas taman · 2 KM/WC';
   else if (version === 'phase2')
     s = 'Lantai 1: carport · ruang tamu · toilet · <b>dapur &amp; ruang makan diperluas</b> (open-plan, dinding belakang dibongkar) &nbsp;|&nbsp; Backyard: kamar + perpustakaan · shower · laundry · gudang · taman terbuka &nbsp;|&nbsp; Lantai 2: kamar utama · gym &amp; kerja · kamar bayi · 2 KM/WC';
   else if (version === 'gym')

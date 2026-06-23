@@ -48,14 +48,13 @@ export function computeLayout(p = {}, version = 'default') {
     hall:    { x0: 1.5, x1: W, z0: masterZ1, z1: bedZ0 },        // landing — stair arrives here
   };
   if (ph3) {
-    // full second storey: open play hub → equal child bedroom + gym/work → walk-in
-    // wardrobe (left) and a glass-floor room over the Taman (right)
-    const playZ1 = bedZ0 + 2.8, roomZ1 = bedZ0 + 5.8;
-    rooms.play     = { x0: 0,       x1: W,     z0: bedZ0,   z1: playZ1 };
-    rooms.bed3     = { x0: 0,       x1: W * 0.5, z0: playZ1, z1: roomZ1 };   // kamar bayi (left)
-    rooms.bed2     = { x0: W * 0.5, x1: W,     z0: playZ1,  z1: roomZ1 };    // gym & kerja (right)
-    rooms.wardrobe = { x0: 0,       x1: W * 0.5, z0: roomZ1, z1: f2Back };   // walk-in (over gudang)
-    rooms.glass    = { x0: W * 0.5, x1: W,     z0: roomZ1,  z1: f2Back };    // glass floor over Taman
+    // full second storey: two equal bedrooms stacked on the LEFT, one big OPEN sharing/play
+    // area down the RIGHT (full depth); the rear of the play (over the Taman) is a glass floor
+    const bX = W * 0.48, midZ = (bedZ0 + f2Back) / 2;
+    rooms.bed3  = { x0: 0,  x1: bX, z0: bedZ0, z1: midZ };     // kamar bayi (left-front)
+    rooms.bed2  = { x0: 0,  x1: bX, z0: midZ,  z1: f2Back };   // gym & kerja (left-back)
+    rooms.play  = { x0: bX, x1: W,  z0: bedZ0, z1: f2Back };   // open sharing / play (right, full depth)
+    rooms.glass = { x0: 2.6, x1: W, z0: 12.5,  z1: f2Back };   // glass-floor lounge over the Taman (part of the play)
   } else {
     rooms.bed2 = { x0: 0, x1: W * 0.628, z0: bedZ0, z1: f2Back };
     rooms.bed3 = { x0: W * 0.628, x1: W, z0: bedZ0, z1: f2Back };
@@ -179,7 +178,7 @@ export function buildHouse(textures = {}, L, version = 'default') {
     slab(groups.structure, SV.x1, X1, zF2, rz, FH, f2m);
     slab(groups.structure, SV.x0, SV.x1, zF2, SV.z0, FH, f2m);
     slab(groups.structure, SV.x0, SV.x1, SV.z1, rz, FH, f2m);
-    slab(groups.structure, X0, gr.x0, rz, f2Back, FH, f2m);           // walk-in wardrobe floor (left)
+    slab(groups.structure, X0, gr.x0, rz, f2Back, FH, f2m);           // left-of-glass back floor (gym + play, solid)
   } else {
     slab(groups.structure, X0, SV.x0, zF2, f2Back, FH, f2m);
     slab(groups.structure, SV.x1, X1, zF2, f2Back, FH, f2m);
@@ -198,7 +197,7 @@ export function buildHouse(textures = {}, L, version = 'default') {
     finishFloor(groups.structure, X0, SV.x0, zF2, rz, FH, TEX.wood);
     finishFloor(groups.structure, SV.x1, X1, zF2, rz, FH, TEX.wood);
     finishFloor(groups.structure, SV.x0, SV.x1, SV.z1, rz, FH, TEX.wood);
-    finishFloor(groups.structure, X0, gr.x0, rz, f2Back, FH, TEX.wood);   // walk-in wardrobe
+    finishFloor(groups.structure, X0, gr.x0, rz, f2Back, FH, TEX.wood);   // left-of-glass back floor
     // glass floor over the Taman — see-through to the garden, sealed so no one can fall
     groups.structure.add(box(gr.x1 - gr.x0 - 0.14, 0.04, gr.z1 - gr.z0 - 0.14, glassMat(),
       { pos: [(gr.x0 + gr.x1) / 2, FH - 0.02, (gr.z0 + gr.z1) / 2], cast: false, receive: false }));
@@ -274,17 +273,17 @@ export function buildHouse(textures = {}, L, version = 'default') {
     { from: mZ + 0.45, to: mZ + 1.05, sill: 0, head: 2.05, kind: 'door' },
   ], intMat);
   if (ph3) {
-    // Phase 3 back zone: open play hub (no wall off the landing) → equal kamar bayi + gym →
-    // walk-in wardrobe (left) and glass-floor room (right)
-    const b2 = L.rooms.bed2, gl = L.rooms.glass, pz = b2.z0, rz = gl.z0, midX = b2.x0;
-    wall(groups.structure, 'x', pz, X0, X1, y2, FH, [
-      { from: 0.9, to: 1.6, sill: 0, head: 2.1, kind: 'door' },     // play → kamar bayi
-      { from: 3.2, to: 3.9, sill: 0, head: 2.1, kind: 'door' },     // play → gym & kerja
+    // bedrooms (x0..bX) on the left, one OPEN play area (x>bX) on the right
+    const bX = L.rooms.bed3.x1, bz0 = L.rooms.bed3.z0, midZ = L.rooms.bed2.z0;
+    // bedroom fronts + KM/WC 2 back wall (encloses the toilet); the play stays open to the landing
+    wall(groups.structure, 'x', bz0, X0, bX, y2, FH, [], intMat);
+    // play | bedrooms — a door into each bedroom
+    wall(groups.structure, 'z', bX, bz0, f2Back, y2, FH, [
+      { from: bz0 + 1.2, to: bz0 + 1.9, sill: 0, head: 2.1, kind: 'door' },   // → kamar bayi
+      { from: midZ + 1.2, to: midZ + 1.9, sill: 0, head: 2.1, kind: 'door' }, // → gym & kerja
     ], intMat);
-    wall(groups.structure, 'z', midX, pz, rz, y2, FH, [], intMat);                                              // kamar bayi ↔ gym
-    wall(groups.structure, 'x', rz, X0, midX, y2, FH, [{ from: 0.5, to: 1.1, sill: 0, head: 2.1, kind: 'door' }], intMat); // kamar bayi → wardrobe
-    wall(groups.structure, 'x', rz, midX, X1, y2, FH, [{ from: 3.0, to: 3.6, sill: 0, head: 2.1, kind: 'door' }], intMat); // gym → glass room
-    wall(groups.structure, 'z', midX, rz, f2Back, y2, FH, [], intMat);                                          // wardrobe ↔ glass room
+    // kamar bayi ↔ gym divider (the play area itself has no internal walls)
+    wall(groups.structure, 'x', midZ, X0, bX, y2, FH, [], intMat);
   } else {
     // landing rear wall (hall / wc2  ↔  bed 2 / bed 3) — doors into both bedrooms, both reached
     // from the landing strip left of the stair void
