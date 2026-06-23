@@ -271,9 +271,9 @@ export function buildHouse(textures = {}, L, version = 'default') {
   wall(groups.structure, 'x', mZ, X0, X1, y2, FH, [
     { from: 2.0, to: 2.7, sill: 0, head: 2.1, kind: 'door' },
   ], intMat);
-  // KM/WC 2 ↔ landing
+  // KM/WC 2 ↔ landing (wall span is only the 0.92 m landing depth — keep the door inside it)
   wall(groups.structure, 'z', w2.x1, mZ, bZ, y2, FH, [
-    { from: mZ + 0.45, to: mZ + 1.05, sill: 0, head: 2.05, kind: 'door' },
+    { from: mZ + 0.18, to: mZ + 0.78, sill: 0, head: 2.05, kind: 'door' },
   ], intMat);
   if (ph3) {
     // bedrooms (x0..bX) on the left, one OPEN play area (x>bX) on the right

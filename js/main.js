@@ -187,9 +187,9 @@ function furnish(L, floor0, floor1, labels, lights) {
   put(floor1, F.shower(0.85, 0.95), R.wc1.x1 - 0.5, R.wc1.z0 + 0.55, 0, FH);
   put(floor1, F.toilet(), R.wc1.x1 - 0.45, R.wc1.z1 - 0.5, Math.PI, FH);
   put(floor1, F.basin(), R.wc1.x0 + 0.32, (R.wc1.z0 + R.wc1.z1) / 2, -Math.PI / 2, FH);
-  // KM/WC 2
+  // KM/WC 2 — door is on the right wall, so keep fixtures left/back of it
   put(floor1, F.toilet(), R.wc2.x0 + 0.32, R.wc2.z1 - 0.5, Math.PI / 2, FH);
-  put(floor1, F.basin(), R.wc2.x1 - 0.32, R.wc2.z1 - 0.55, -Math.PI / 2, FH);
+  put(floor1, F.basin(), R.wc2.x1 - 0.55, R.wc2.z1 - 0.18, Math.PI, FH);   // back wall, clear of the door
   if (version === 'phase3') {
     // KAMAR BAYI (left-front) — bed headboard on the front wall, wardrobe clear of the side door
     put(floor1, F.bed(1.2, 2.0, PAL.fabricSand), R.bed3.x0 + 1.0, R.bed3.z0 + 1.1, 0, FH);
