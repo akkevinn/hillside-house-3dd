@@ -1,6 +1,6 @@
-# Rumah 5 × 12.5 m — 3D Interior Walkthrough
+# Rumah 5 × 15.4 m — 3D Interior Walkthrough
 
-A fully interactive 3D model of a narrow two-storey house (5 m wide × 12.5 m deep),
+A fully interactive 3D model of a narrow two-storey house (5 m wide × 15.4 m deep),
 built with **Three.js**. No build step, no internet — Three.js is vendored locally.
 
 ## Run it

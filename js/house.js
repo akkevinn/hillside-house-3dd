@@ -80,8 +80,10 @@ function wall(group, axis, fixed, a, b, y0, height, openings = [], material) {
   const place = (lo, hi, yLo, yHi) => {
     if (hi - lo < 0.002 || yHi - yLo < 0.002) return;
     const len = hi - lo, h = yHi - yLo, mid = (lo + hi) / 2, ym = (yLo + yHi) / 2;
-    group.add(axis === 'x' ? box(len, h, T, wm, { pos: [mid, ym, fixed] })
-                           : box(T, h, len, wm, { pos: [fixed, ym, mid] }));
+    const seg = axis === 'x' ? box(len, h, T, wm, { pos: [mid, ym, fixed] })
+                             : box(T, h, len, wm, { pos: [fixed, ym, mid] });
+    seg.userData.collide = true;   // solid wall segment — blocks the walker (doorway gaps stay open)
+    group.add(seg);
   };
   // clamp openings into the wall span; drop degenerate ones
   const ops = openings.map(o => ({ ...o, from: Math.max(a + 0.18, o.from), to: Math.min(b - 0.18, o.to) }))
