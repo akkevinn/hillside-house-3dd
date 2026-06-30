@@ -29,8 +29,17 @@ function skyTexture(top, bottom) {
 const skyDay = skyTexture('#8fb6e6', '#dfeaf3'), skyNight = skyTexture('#0a0e1a', '#222a3a');
 scene.background = skyDay;
 
-const camera = new THREE.PerspectiveCamera(52, 1, 0.05, 400);
-camera.position.set(12, 9, -12);
+// Two lenses: a narrow ORBIT lens flattens perspective into the architectural
+// "dollhouse" look of glossy floor-plan renders; a natural WALK lens is swapped in
+// for first-person so it doesn't feel like a telescope. The view presets below were
+// framed for the old 52° lens, so DOLLY pushes the camera back to keep that framing.
+const ORBIT_FOV = 38, WALK_FOV = 70;
+const DOLLY = Math.tan(THREE.MathUtils.degToRad(52) / 2) / Math.tan(THREE.MathUtils.degToRad(ORBIT_FOV) / 2);
+const _dv = new THREE.Vector3(), _dt = new THREE.Vector3();
+const dollied = (pos, target) => _dv.set(...pos).sub(_dt.set(...target)).multiplyScalar(DOLLY).add(_dt);
+
+const camera = new THREE.PerspectiveCamera(ORBIT_FOV, 1, 0.05, 400);
+camera.position.copy(dollied([12, 9, -12], [0, 1.4, 0]));
 const orbit = new OrbitControls(camera, canvas);
 orbit.enableDamping = true; orbit.dampingFactor = 0.07; orbit.target.set(0, 1.4, 0);
 orbit.maxPolarAngle = Math.PI * 0.495; orbit.minDistance = 1.5; orbit.maxDistance = 60; orbit.autoRotateSpeed = 0.5;
@@ -44,7 +53,7 @@ const sun = new THREE.DirectionalLight(0xfff1d8, 2.6);
 sun.position.set(-13, 20, -7); sun.castShadow = true;
 sun.shadow.mapSize.set(4096, 4096); sun.shadow.camera.near = 1; sun.shadow.camera.far = 90;
 const sc = 18; Object.assign(sun.shadow.camera, { left: -sc, right: sc, top: sc, bottom: -sc });
-sun.shadow.bias = -0.00035; sun.shadow.normalBias = 0.02; scene.add(sun, sun.target);
+sun.shadow.bias = -0.00035; sun.shadow.normalBias = 0.02; sun.shadow.radius = 5; scene.add(sun, sun.target);
 
 /* ============================ textures (persistent) ============================ */
 const tex = {
@@ -296,7 +305,11 @@ function rebuild() {
   const upperStructure = []; const bb = new THREE.Box3();
   groups.structure.children.concat(groups.wallsExt.children, groups.roof.children).forEach(o => { bb.setFromObject(o); if ((bb.min.y + bb.max.y) / 2 > 2.6) upperStructure.push(o); });
 
-  model = { house, groups, floor0, floor1, labels, lights, upperStructure, L };
+  // collect solid wall segments for walk-mode collision (tagged in house.js `place()`)
+  const colliders = []; house.traverse(o => { if (o.isMesh && o.userData.collide) colliders.push(o); });
+  content.updateMatrixWorld(true);   // so collider world matrices are current for the first raycast
+
+  model = { house, groups, floor0, floor1, labels, lights, upperStructure, colliders, L };
   applyVisibility(); applyTime(); updateLegend();
   orbit.target.set(0, 1.4, 0);
 }
@@ -334,7 +347,8 @@ function applyTime() {
     model?.lights.forEach(l => l.intensity = l.color.getHex() === 0xcfe8ff ? 9 : 14);
   } else {
     scene.background = skyDay; scene.fog = new THREE.Fog(0xcfe0f0, 50, 130);
-    sun.intensity = 2.6; sun.color.set(0xfff1d8); hemi.intensity = 0.35; renderer.toneMappingExposure = 1.0;
+    // warmer, softer, slightly brighter daylight — the airy, evenly-lit look of glossy renders
+    sun.intensity = 2.4; sun.color.set(0xfff3e0); hemi.intensity = 0.5; renderer.toneMappingExposure = 1.06;
     model?.lights.forEach(l => l.intensity = 0);
   }
 }
@@ -386,7 +400,7 @@ $('dReset').onclick = () => {
 let flying = false;
 function flyTo(pos, target) {
   if (fp.enabled) exitFP();
-  const p0 = camera.position.clone(), t0 = orbit.target.clone(), p1 = new THREE.Vector3(...pos), t1 = new THREE.Vector3(...target); let t = 0;
+  const p0 = camera.position.clone(), t0 = orbit.target.clone(), p1 = dollied(pos, target).clone(), t1 = new THREE.Vector3(...target); let t = 0;
   flying = true;   // pause orbit.update() so it doesn't fight the animation
   (function a() {
     t = Math.min(1, t + 1 / 54);
@@ -404,19 +418,69 @@ $('vSide').onclick = () => flyTo([18, 5, 0], [0, 3, 0]);
 const fp = new PointerLockControls(camera, canvas); fp.enabled = false;
 const keys = {}; addEventListener('keydown', e => keys[e.code] = true); addEventListener('keyup', e => keys[e.code] = false);
 const vel = new THREE.Vector3(); let savedCam = null, walkLevel = 0;
+// --- walk-mode wall collision (axis-separated raycasts → slide along walls) ---
+const PLAYER_R = 0.28;                       // keep this far off any wall
+const PROBE_Y = [0.5, 1.5];                  // sample knee + chest height so low walls also block
+const _ray = new THREE.Raycaster(); _ray.far = 4;
+const _dir = new THREE.Vector3(), _org = new THREE.Vector3();
+// can the walker move `d` metres along world axis ('x' or 'z') from (x,z) at level y0?
+function axisClear(x, z, y0, axis, d) {
+  if (!model?.colliders.length || d === 0) return true;
+  const s = Math.sign(d), reach = Math.abs(d) + PLAYER_R;
+  _dir.set(axis === 'x' ? s : 0, 0, axis === 'z' ? s : 0);
+  for (const dy of PROBE_Y) {
+    _org.set(x, y0 + dy, z); _ray.set(_org, _dir); _ray.far = reach;
+    if (_ray.intersectObjects(model.colliders, false).length) return false;
+  }
+  return true;
+}
 function enterFP() {
   savedCam = { p: camera.position.clone(), t: orbit.target.clone() }; orbit.enabled = false;
   walkLevel = 0;
   const [lx, lz] = C(model.L.rooms.living);
   camera.position.set(model.L.center.cx - lx, 1.65, lz - model.L.center.cz);   // mirrored x
+  camera.fov = WALK_FOV; camera.updateProjectionMatrix();   // natural lens for first-person
   fp.getObject().rotation.set(0, Math.PI, 0); fp.enabled = true; fp.lock(); $('fpHint').style.display = 'block';
 }
-function exitFP() { fp.enabled = false; fp.unlock(); orbit.enabled = true; if (savedCam) { camera.position.copy(savedCam.p); orbit.target.copy(savedCam.t); } $('fpHint').style.display = 'none'; $('walk').checked = false; }
+function exitFP() { fp.enabled = false; fp.unlock(); orbit.enabled = true; camera.fov = ORBIT_FOV; camera.updateProjectionMatrix(); if (savedCam) { camera.position.copy(savedCam.p); orbit.target.copy(savedCam.t); } $('fpHint').style.display = 'none'; $('walk').checked = false; }
 $('walk').onchange = e => e.target.checked ? enterFP() : exitFP();
 fp.addEventListener('unlock', () => { if (fp.enabled) exitFP(); });
 
 /* ============================ loop ============================ */
-function resize() { renderer.setSize(innerWidth, innerHeight, false); camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); }
+function resize() { renderer.setSize(innerWidth, innerHeight, false); camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); composer?.setSize(innerWidth, innerHeight); }
+
+/* ============================ ambient occlusion (GTAO) ============================
+   Soft contact shadows where walls meet floors and under furniture. Loaded via guarded
+   dynamic import: if any postprocessing file is missing, composer stays null and the loop
+   falls back to a plain render — the app never breaks, AO just won't be there. Toggleable. */
+let composer = null, aoEnabled = true;
+try {
+  const [{ EffectComposer }, { RenderPass }, { GTAOPass }, { OutputPass }] = await Promise.all([
+    import('three/addons/postprocessing/EffectComposer.js'),
+    import('three/addons/postprocessing/RenderPass.js'),
+    import('three/addons/postprocessing/GTAOPass.js'),
+    import('three/addons/postprocessing/OutputPass.js'),
+  ]);
+  composer = new EffectComposer(renderer);
+  composer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  composer.setSize(innerWidth, innerHeight);
+  composer.addPass(new RenderPass(scene, camera));
+  const gtao = new GTAOPass(scene, camera, innerWidth, innerHeight);
+  gtao.output = GTAOPass.OUTPUT.Default;
+  // subtle — rooms are small (5 m), so a short radius keeps AO to corners/contacts, not whole walls
+  gtao.updateGtaoMaterial({ radius: 0.4, distanceExponent: 1, thickness: 1, scale: 1,
+    samples: 16, distanceFallOff: 1, screenSpaceRadius: false });
+  gtao.updatePdMaterial({ lumaPhi: 10, depthPhi: 2, normalPhi: 3, radius: 4,
+    radiusExponent: 1, rings: 2, samples: 16 });
+  composer.addPass(gtao);
+  composer.addPass(new OutputPass());   // tone-map + sRGB at the end (reads renderer exposure)
+} catch (e) {
+  console.warn('Ambient occlusion unavailable — rendering without it:', e);
+  composer = null;
+}
+const aoBox = $('ao');
+if (aoBox) { aoBox.disabled = !composer; aoBox.checked = !!composer; aoBox.onchange = e => aoEnabled = e.target.checked; }
+
 addEventListener('resize', resize); resize();
 
 const clock = new THREE.Clock();
@@ -428,13 +492,23 @@ function tick() {
     const str = (keys.KeyD || keys.ArrowRight ? 1 : 0) - (keys.KeyA || keys.ArrowLeft ? 1 : 0);
     vel.z -= fwd * 19 * dt; vel.x -= str * 19 * dt;
     if (keys.KeyE) walkLevel = 1; if (keys.KeyQ) walkLevel = 0;     // E = upstairs, Q = downstairs
-    fp.moveRight(-vel.x * dt); fp.moveForward(-vel.z * dt);
-    const o = fp.getObject(); o.position.y = 1.65 + walkLevel * model.L.FH;
+    const o = fp.getObject();
+    const ox = o.position.x, oz = o.position.z, baseY = walkLevel * model.L.FH;
+    fp.moveRight(-vel.x * dt); fp.moveForward(-vel.z * dt);   // candidate move (camera-local → world XZ)
+    const dx = o.position.x - ox, dz = o.position.z - oz;
+    o.position.x = ox; o.position.z = oz;                    // revert, then re-apply per axis if clear (wall slide)
+    if (axisClear(ox, oz, baseY, 'x', dx)) o.position.x = ox + dx;
+    if (axisClear(o.position.x, oz, baseY, 'z', dz)) o.position.z = oz + dz;
+    o.position.y = 1.65 + walkLevel * model.L.FH;
+    // backstop: never leave the building footprint even if a wall is missing
     o.position.x = THREE.MathUtils.clamp(o.position.x, -model.L.W / 2 + 0.35, model.L.W / 2 - 0.35);
     o.position.z = THREE.MathUtils.clamp(o.position.z, -model.L.center.cz + 0.5, model.L.zBL - model.L.center.cz - 0.5);
   } else if (!flying) orbit.update();
   sun.target.position.set(0, 1, 0);
-  renderer.render(scene, camera);
+  if (composer && aoEnabled) {
+    try { composer.render(); }                 // never let an AO failure freeze the loop
+    catch (e) { console.warn('AO render failed — disabling:', e); composer = null; renderer.render(scene, camera); }
+  } else renderer.render(scene, camera);
   requestAnimationFrame(tick);
 }
 
